@@ -1,5 +1,5 @@
 // lib/api.ts
-import { Hero, Skill, CharacterStats, EquipmentStats, DamageResult, HeroTrait } from '../type';
+import {Hero, Skill, CharacterStats, EquipmentStats, DamageResult, HeroTrait, TalentPage, TalentBook} from '../type';
 
 export const apiService = {
     // 获取英雄列表（包含特性）
@@ -594,6 +594,668 @@ export const apiService = {
                 critBonus: Math.round(critBonus)
             }
         };
+    },
+
+    // lib/api.ts - 添加天赋数据
+    async getTalentBooks(): Promise<TalentBook[]> {
+        return [
+            {
+                id: 'warrior_book',
+                name: '战士圣典',
+                icon: '⚔️',
+                description: '战士之道的力量源泉',
+                pages: [
+                    {
+                        id: 'warrior_might',
+                        name: '战士之力',
+                        icon: '💪',
+                        description: '强化物理攻击和生存能力',
+                        startingNode: 'physical_power',
+                        talentTree: [
+                            {
+                                id: 'physical_power',
+                                name: '物理力量',
+                                icon: '💪',
+                                description: '每点+5% 物理伤害',
+                                type: 'minor',
+                                position: { x: 0, y: 0 },
+                                connections: ['attack_speed'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 0
+                            },
+                            {
+                                id: 'attack_speed',
+                                name: '攻击速度',
+                                icon: '⚡',
+                                description: '每点+5% 攻击速度',
+                                type: 'medium',
+                                position: { x: 1, y: 0 },
+                                connections: ['physical_power'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 3
+                            },{
+                                id: 'critical_strike',
+                                name: '致命打击',
+                                icon: '🎯',
+                                description: '每点+5% 暴击率',
+                                type: 'minor',
+                                position: { x: 2, y: 0 },
+                                connections: ['berserker'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 6
+                            },{
+                                id: 'berserker',
+                                name: '狂战士',
+                                icon: '💢',
+                                description: '生命低于30%时 +50% 伤害，+30% 攻击速度',
+                                type: 'medium',
+                                position: { x: 3, y: 0 },
+                                connections: ['critical_strike', 'warrior_rage'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 9
+                            },{
+                                id: 'warrior_rage',
+                                name: '战士之怒',
+                                icon: '🔥',
+                                description: '每点+10% 怒气获取速度',
+                                type: 'legendary',
+                                position: { x: 4, y: 0 },
+                                connections: ['berserker'],
+                                requirements: ['berserker'],
+                                maxPoints: 1,
+                                currentPoints: 0,
+                                columnRequirement: 12
+                            },
+                            {
+                                id: 'vitality',
+                                name: '活力',
+                                icon: '❤️',
+                                description: '每点+5% 最大生命值',
+                                type: 'minor',
+                                position: { x: 0, y: 1 },
+                                connections: ['defense'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 0
+                            },
+
+                            {
+                                id: 'defense',
+                                name: '防御',
+                                icon: '🛡️',
+                                description: '每点+10% 护甲',
+                                type: 'medium',
+                                position: { x: 1, y: 1 },
+                                connections: ['vitality'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 3
+                            },
+
+                            {
+                                id: 'endurance',
+                                name: '耐力',
+                                icon: '🔋',
+                                description: '每点+10% 生命恢复',
+                                type: 'minor',
+                                position: { x: 1, y: 2 },
+                                connections: ['unbreakable'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 3
+                            },
+                            {
+                                id: 'unbreakable',
+                                name: '不屈意志',
+                                icon: '🌟',
+                                description: '受到致命伤害时免疫死亡，恢复50%生命，冷却120秒',
+                                type: 'medium',
+                                position: { x: 2, y: 2 },
+                                connections: ['endurance', 'final_stand'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 6
+                            },
+
+                            {
+                                id: 'final_stand',
+                                name: '最终立场',
+                                icon: '⚔️',
+                                description: '生命低于20%时，所有伤害+100%，护甲+100%，持续8秒',
+                                type: 'legendary',
+                                position: { x: 3, y: 2 },
+                                connections: ['unbreakable'],
+                                requirements: ['unbreakable'],
+                                maxPoints: 1,
+                                currentPoints: 0,
+                                columnRequirement: 9
+                            }]
+                    },
+                    {
+                        id: 'berserker_rage',
+                        name: '狂战士之怒',
+                        icon: '💢',
+                        description: '低生命时获得强大增益',
+                        startingNode: 'rage_core',
+                        talentTree: [
+                            {
+                                id: 'physical_power',
+                                name: '物理力量',
+                                icon: '💪',
+                                description: '每点+5% 物理伤害',
+                                type: 'minor',
+                                position: { x: 0, y: 0 },
+                                connections: ['attack_speed'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 0
+                            },
+                            {
+                                id: 'attack_speed',
+                                name: '攻击速度',
+                                icon: '⚡',
+                                description: '每点+5% 攻击速度',
+                                type: 'medium',
+                                position: { x: 1, y: 0 },
+                                connections: ['physical_power'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 3
+                            },{
+                                id: 'critical_strike',
+                                name: '致命打击',
+                                icon: '🎯',
+                                description: '每点+5% 暴击率',
+                                type: 'minor',
+                                position: { x: 2, y: 0 },
+                                connections: ['berserker'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 6
+                            },{
+                                id: 'berserker',
+                                name: '狂战士',
+                                icon: '💢',
+                                description: '生命低于30%时 +50% 伤害，+30% 攻击速度',
+                                type: 'medium',
+                                position: { x: 3, y: 0 },
+                                connections: ['critical_strike', 'warrior_rage'],
+                                maxPoints: 1,
+                                currentPoints: 0,
+                                columnRequirement: 9
+                            },{
+                                id: 'warrior_rage',
+                                name: '战士之怒',
+                                icon: '🔥',
+                                description: '每点+10% 怒气获取速度',
+                                type: 'legendary',
+                                position: { x: 4, y: 0 },
+                                connections: ['berserker'],
+                                requirements: ['berserker'],
+                                maxPoints: 1,
+                                currentPoints: 0,
+                                columnRequirement: 12
+                            },
+                            {
+                                id: 'vitality',
+                                name: '活力',
+                                icon: '❤️',
+                                description: '每点+5% 最大生命值',
+                                type: 'minor',
+                                position: { x: 0, y: 1 },
+                                connections: ['defense'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 0
+                            },
+
+                            {
+                                id: 'defense',
+                                name: '防御',
+                                icon: '🛡️',
+                                description: '每点+10% 护甲',
+                                type: 'medium',
+                                position: { x: 1, y: 1 },
+                                connections: ['vitality'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 3
+                            },
+
+                            {
+                                id: 'endurance',
+                                name: '耐力',
+                                icon: '🔋',
+                                description: '每点+10% 生命恢复',
+                                type: 'minor',
+                                position: { x: 1, y: 2 },
+                                connections: ['unbreakable'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 3
+                            },
+                            {
+                                id: 'unbreakable',
+                                name: '不屈意志',
+                                icon: '🌟',
+                                description: '受到致命伤害时免疫死亡，恢复50%生命，冷却120秒',
+                                type: 'medium',
+                                position: { x: 2, y: 2 },
+                                connections: ['endurance', 'final_stand'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 6
+                            },
+
+                            {
+                                id: 'final_stand',
+                                name: '最终立场',
+                                icon: '⚔️',
+                                description: '生命低于20%时，所有伤害+100%，护甲+100%，持续8秒',
+                                type: 'legendary',
+                                position: { x: 3, y: 2 },
+                                connections: ['unbreakable'],
+                                requirements: ['unbreakable'],
+                                maxPoints: 1,
+                                currentPoints: 0,
+                                columnRequirement: 9
+                            }]
+                    },
+                    {
+                        id: 'defensive_stance',
+                        name: '防御姿态',
+                        icon: '🛡️',
+                        description: '提升防御和生存能力',
+                        startingNode: 'rage_core',
+                        talentTree: [
+                            {
+                                id: 'physical_power',
+                                name: '物理力量',
+                                icon: '💪',
+                                description: '每点+5% 物理伤害',
+                                type: 'minor',
+                                position: { x: 0, y: 0 },
+                                connections: ['attack_speed'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 0
+                            },
+                            {
+                                id: 'attack_speed',
+                                name: '攻击速度',
+                                icon: '⚡',
+                                description: '每点+5% 攻击速度',
+                                type: 'medium',
+                                position: { x: 1, y: 0 },
+                                connections: ['physical_power'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 3
+                            },{
+                                id: 'critical_strike',
+                                name: '致命打击',
+                                icon: '🎯',
+                                description: '每点+5% 暴击率',
+                                type: 'minor',
+                                position: { x: 2, y: 0 },
+                                connections: ['berserker'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 6
+                            },{
+                                id: 'berserker',
+                                name: '狂战士',
+                                icon: '💢',
+                                description: '生命低于30%时 +50% 伤害，+30% 攻击速度',
+                                type: 'medium',
+                                position: { x: 3, y: 0 },
+                                connections: ['critical_strike', 'warrior_rage'],
+                                maxPoints: 1,
+                                currentPoints: 0,
+                                columnRequirement: 9
+                            },{
+                                id: 'warrior_rage',
+                                name: '战士之怒',
+                                icon: '🔥',
+                                description: '每点+10% 怒气获取速度',
+                                type: 'legendary',
+                                position: { x: 4, y: 0 },
+                                connections: ['berserker'],
+                                requirements: ['berserker'],
+                                maxPoints: 1,
+                                currentPoints: 0,
+                                columnRequirement: 12
+                            },
+                            {
+                                id: 'vitality',
+                                name: '活力',
+                                icon: '❤️',
+                                description: '每点+5% 最大生命值',
+                                type: 'minor',
+                                position: { x: 0, y: 1 },
+                                connections: ['defense'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 0
+                            },
+
+                            {
+                                id: 'defense',
+                                name: '防御',
+                                icon: '🛡️',
+                                description: '每点+10% 护甲',
+                                type: 'medium',
+                                position: { x: 1, y: 1 },
+                                connections: ['vitality'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 3
+                            },
+
+                            {
+                                id: 'endurance',
+                                name: '耐力',
+                                icon: '🔋',
+                                description: '每点+10% 生命恢复',
+                                type: 'minor',
+                                position: { x: 1, y: 2 },
+                                connections: ['unbreakable'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 3
+                            },
+                            {
+                                id: 'unbreakable',
+                                name: '不屈意志',
+                                icon: '🌟',
+                                description: '受到致命伤害时免疫死亡，恢复50%生命，冷却120秒',
+                                type: 'medium',
+                                position: { x: 2, y: 2 },
+                                connections: ['endurance', 'final_stand'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 6
+                            },
+
+                            {
+                                id: 'final_stand',
+                                name: '最终立场',
+                                icon: '⚔️',
+                                description: '生命低于20%时，所有伤害+100%，护甲+100%，持续8秒',
+                                type: 'legendary',
+                                position: { x: 3, y: 2 },
+                                connections: ['unbreakable'],
+                                requirements: ['unbreakable'],
+                                maxPoints: 1,
+                                currentPoints: 0,
+                                columnRequirement: 9
+                            }]
+                    },
+                    {
+                        id: 'battle_cry',
+                        name: '战吼强化',
+                        icon: '📢',
+                        description: '增强战吼技能效果',
+                        startingNode: 'rage_core',
+                        talentTree: [
+                            {
+                                id: 'physical_power',
+                                name: '物理力量',
+                                icon: '💪',
+                                description: '每点+5% 物理伤害',
+                                type: 'minor',
+                                position: { x: 0, y: 0 },
+                                connections: ['attack_speed'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 0
+                            },
+                            {
+                                id: 'attack_speed',
+                                name: '攻击速度',
+                                icon: '⚡',
+                                description: '每点+5% 攻击速度',
+                                type: 'medium',
+                                position: { x: 1, y: 0 },
+                                connections: ['physical_power'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 3
+                            },{
+                                id: 'critical_strike',
+                                name: '致命打击',
+                                icon: '🎯',
+                                description: '每点+5% 暴击率',
+                                type: 'minor',
+                                position: { x: 2, y: 0 },
+                                connections: ['berserker'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 6
+                            },{
+                                id: 'berserker',
+                                name: '狂战士',
+                                icon: '💢',
+                                description: '生命低于30%时 +50% 伤害，+30% 攻击速度',
+                                type: 'medium',
+                                position: { x: 3, y: 0 },
+                                connections: ['critical_strike', 'warrior_rage'],
+                                maxPoints: 1,
+                                currentPoints: 0,
+                                columnRequirement: 9
+                            },{
+                                id: 'warrior_rage',
+                                name: '战士之怒',
+                                icon: '🔥',
+                                description: '每点+10% 怒气获取速度',
+                                type: 'legendary',
+                                position: { x: 4, y: 0 },
+                                connections: ['berserker'],
+                                requirements: ['berserker'],
+                                maxPoints: 1,
+                                currentPoints: 0,
+                                columnRequirement: 12
+                            },
+                            {
+                                id: 'vitality',
+                                name: '活力',
+                                icon: '❤️',
+                                description: '每点+5% 最大生命值',
+                                type: 'minor',
+                                position: { x: 0, y: 1 },
+                                connections: ['defense'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 0
+                            },
+
+                            {
+                                id: 'defense',
+                                name: '防御',
+                                icon: '🛡️',
+                                description: '每点+10% 护甲',
+                                type: 'medium',
+                                position: { x: 1, y: 1 },
+                                connections: ['vitality'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 3
+                            },
+
+                            {
+                                id: 'endurance',
+                                name: '耐力',
+                                icon: '🔋',
+                                description: '每点+10% 生命恢复',
+                                type: 'minor',
+                                position: { x: 1, y: 2 },
+                                connections: ['unbreakable'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 3
+                            },
+                            {
+                                id: 'unbreakable',
+                                name: '不屈意志',
+                                icon: '🌟',
+                                description: '受到致命伤害时免疫死亡，恢复50%生命，冷却120秒',
+                                type: 'medium',
+                                position: { x: 2, y: 2 },
+                                connections: ['endurance', 'final_stand'],
+                                maxPoints: 3,
+                                currentPoints: 0,
+                                columnRequirement: 6
+                            },
+
+                            {
+                                id: 'final_stand',
+                                name: '最终立场',
+                                icon: '⚔️',
+                                description: '生命低于20%时，所有伤害+100%，护甲+100%，持续8秒',
+                                type: 'legendary',
+                                position: { x: 3, y: 2 },
+                                connections: ['unbreakable'],
+                                requirements: ['unbreakable'],
+                                maxPoints: 1,
+                                currentPoints: 0,
+                                columnRequirement: 9
+                            }]
+                    },
+                    {
+                        id: 'weapon_mastery',
+                        name: '武器精通',
+                        icon: '🗡️',
+                        description: '精通各类武器的使用',
+                        startingNode: 'rage_core',
+                        talentTree: []
+                    }
+                ]
+            },
+            {
+                id: 'mage_book',
+                name: '法师宝典',
+                icon: '🔮',
+                description: '魔法艺术的终极指南',
+                pages: [
+                    {
+                        id: 'elemental_mastery',
+                        name: '元素精通',
+                        icon: '🔥',
+                        description: '提升元素伤害和元素异常效果',
+                        startingNode: 'rage_core',
+                        talentTree: []
+                    },
+                    { id: 'arcane_power', name: '奥术能量', icon: '💫', description: '强化法术和法力系统',
+                        startingNode: 'rage_core',
+                        talentTree: [] },
+                    { id: 'spell_weaving', name: '法术编织', icon: '🕸️', description: '多重法术的完美结合',
+                        startingNode: 'rage_core',
+                        talentTree: [] },
+                    { id: 'mana_surge', name: '法力涌动', icon: '🌀', description: '爆发性的法力输出',
+                        startingNode: 'rage_core',
+                        talentTree: [] },
+                    { id: 'elemental_fusion', name: '元素融合', icon: '⚗️', description: '混合元素产生新效果',
+                        startingNode: 'rage_core',
+                        talentTree: [] }
+                ]
+            },
+            {
+                id: 'rogue_book',
+                name: '刺客秘卷',
+                icon: '🗡️',
+                description: '暗影中的致命艺术',
+                pages: [
+                    { id: 'shadow_arts', name: '暗影技艺', icon: '🌑', description: '增强潜行和暴击能力',
+                        startingNode: 'rage_core',
+                        talentTree: [] },
+                    { id: 'critical_strike', name: '致命一击', icon: '🎯', description: '强化暴击伤害和暴击率',
+                        startingNode: 'rage_core',
+                        talentTree: [] },
+                    { id: 'agile_movement', name: '灵巧移动', icon: '💨', description: '提升移动和闪避能力',
+                        startingNode: 'rage_core',
+                        talentTree: [] },
+                    { id: 'poison_mastery', name: '毒药精通', icon: '☠️', description: '精通各类毒药的使用',
+                        startingNode: 'rage_core',
+                        talentTree: [] },
+                    { id: 'assassination', name: '暗杀技巧', icon: '⚰️', description: '一击必杀的致命艺术',
+                        startingNode: 'rage_core',
+                        talentTree: [] }
+                ]
+            },
+            {
+                id: 'ranger_book',
+                name: '游侠手册',
+                icon: '🏹',
+                description: '远程射击的精湛技艺',
+                pages: [
+                    { id: 'precision_aiming', name: '精准瞄准', icon: '🎯', description: '提升远程攻击和命中',
+                        startingNode: 'rage_core',
+                        talentTree: [] },
+                    { id: 'projectile_mastery', name: '投射物精通', icon: '➰', description: '强化所有投射物技能',
+                        startingNode: 'rage_core',
+                        talentTree: [] },
+                    { id: 'trap_expertise', name: '陷阱专家', icon: '🕳️', description: '精通各类陷阱的布置' ,
+                        startingNode: 'rage_core',
+                        talentTree: []},
+                    { id: 'beast_companion', name: '野兽伙伴', icon: '🐺', description: '强化动物伙伴的能力',
+                        startingNode: 'rage_core',
+                        talentTree: [] },
+                    { id: 'wilderness_survival', name: '荒野生存', icon: '🌲', description: '在野外环境中的生存技巧',
+                        startingNode: 'rage_core',
+                        talentTree: [] }
+                ]
+            },
+            {
+                id: 'summoner_book',
+                name: '召唤师典籍',
+                icon: '👥',
+                description: '召唤生物的掌控之道',
+                pages: [
+                    { id: 'summoner_power', name: '召唤之力', icon: '👥', description: '强化召唤物和宠物',
+                        startingNode: 'rage_core',
+                        talentTree: [] },
+                    { id: 'minion_enhancement', name: '仆从强化', icon: '🤖', description: '全面提升仆从属性',
+                        startingNode: 'rage_core',
+                        talentTree: [] },
+                    { id: 'necromancy', name: '死灵法术', icon: '💀', description: '操控亡者的黑暗艺术',
+                        startingNode: 'rage_core',
+                        talentTree: [] },
+                    { id: 'golem_crafting', name: '傀儡制造', icon: '⚙️', description: '制造强大的魔法傀儡',
+                        startingNode: 'rage_core',
+                        talentTree: [] },
+                    { id: 'spirit_binding', name: '灵魂绑定', icon: '🔗', description: '与灵体建立强大连接' ,
+                        startingNode: 'rage_core',
+                        talentTree: []}
+                ]
+            },
+            {
+                id: 'support_book',
+                name: '辅助圣书',
+                icon: '✨',
+                description: '支援与保护的圣洁力量',
+                pages: [
+                    { id: 'divine_protection', name: '神圣庇护', icon: '✨', description: '获得神圣力量的保护',
+                        startingNode: 'rage_core',
+                        talentTree: [] },
+                    { id: 'healing_light', name: '治愈之光', icon: '💡', description: '强大的治疗和恢复能力' ,
+                        startingNode: 'rage_core',
+                        talentTree: []},
+                    { id: 'blessing_aura', name: '祝福光环', icon: '💫', description: '为队友提供增益效果',
+                        startingNode: 'rage_core',
+                        talentTree: [] },
+                    { id: 'guardian_spirit', name: '守护之灵', icon: '👼', description: '召唤守护灵保护队友',
+                        startingNode: 'rage_core',
+                        talentTree: [] },
+                    { id: 'purification', name: '净化之力', icon: '💧', description: '清除负面状态和诅咒',
+                        startingNode: 'rage_core',
+                        talentTree: [] }
+                ]
+            }
+        ];
     },
 
     // 保存配置

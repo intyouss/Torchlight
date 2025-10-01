@@ -113,3 +113,48 @@ export interface CalculationParams {
     equipment: EquipmentStats;
     selectedTrait?: string;
 }
+
+// types/index.ts - 添加天赋相关类型
+export interface TalentPage {
+    id: string;
+    name: string;
+    icon: string;
+    description: string;
+}
+
+export interface TalentBook {
+    id: string;
+    name: string;
+    icon: string;
+    description: string;
+    pages: TalentPage[];
+}
+
+export interface TalentBuild {
+    selectedPages: TalentPage[]; // 已选择的4个天赋页
+    isComplete: boolean; // 是否选择完成
+}
+
+// types/index.ts - 添加小天赋点类型
+export interface TalentNode {
+    id: string;
+    name: string;
+    icon: string;
+    description: string;
+    type: 'minor' | 'medium' | 'legendary'; // 小型/中型/传奇天赋
+    position: { x: number; y: number };
+    connections: string[];
+    requirements?: string[];
+    maxPoints: number; // 最大点数
+    currentPoints: number; // 当前点数
+    columnRequirement: number; // 列要求点数
+}
+
+export interface TalentPage {
+    id: string;
+    name: string;
+    icon: string;
+    description: string;
+    talentTree: TalentNode[]; // 天赋树
+    startingNode: string; // 起始天赋点ID
+}
