@@ -1,0 +1,39 @@
+/* app/globals.css */
+@import "tailwindcss";
+
+/* 自定义主题配置 */
+@theme {
+  --color-orange-500: #f97316;
+  --color-orange-600: #ea580c;
+  --color-gray-800: #1f2937;
+  --color-gray-700: #374151;
+  --color-gray-600: #4b5563;
+  --color-gray-500: #6b7280;
+  --color-gray-400: #9ca3af;
+  --color-gray-300: #d1d5db;
+  --color-gray-900: #111827;
+  --color-purple-900: #581c87;
+  --color-red-500: #ef4444;
+  --color-yellow-400: #facc15;
+  --color-blue-400: #60a5fa;
+  --color-green-400: #4ade80;
+}
+
+/* 自定义样式 */
+.slider-orange::-webkit-slider-thumb {
+  appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #f97316;
+  cursor: pointer;
+}
+
+.slider-orange::-moz-range-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #f97316;
+  cursor: pointer;
+  border: none;
+}
