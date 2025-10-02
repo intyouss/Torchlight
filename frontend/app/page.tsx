@@ -484,6 +484,7 @@ export default function TorchlightCalculator() {
     };
 
 
+
     // 处理属性变化
     const handleStatChange = (stat: keyof CharacterStats, value: string) => {
         const numValue = parseInt(value) || 0;
