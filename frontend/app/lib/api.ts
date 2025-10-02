@@ -1,212 +1,55 @@
 // lib/api.ts
-import {Hero, Skill, CharacterStats, EquipmentStats, DamageResult, HeroTrait, TalentPage, TalentBook} from '../type';
+import {CharacterStats, DamageResult, EquipmentStats, Hero, HeroTrait, Skill, TalentBook} from '../type';
+// API基础配置
+const API_BASE_URL = 'http://localhost:8080/api/v1';
+
+// 请求拦截器
+const apiClient = {
+    async get<T>(url: string): Promise<T> {
+        const response = await fetch(`${API_BASE_URL}${url}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    }
+};
+
+function transformTraits(traits: any[]): HeroTrait[] {
+    return traits.map(trait => ({
+        id: trait.id || trait.name || '', // 使用 name 作为备用 ID
+        name: trait.name || '',
+        desc: trait.desc || trait.description || '', // 处理字段名差异
+        unlock_level: parseInt(trait.unlock_level),
+        isDefault: parseInt(trait.unlock_level) === 1 // 解锁等级为1的是默认特性
+    }));
+}
+
+function transformHeroData(heroData: any): Hero {
+    return {
+        id: heroData.id || '',
+        name: heroData.name || '',
+        desc: heroData.desc || '',
+        traits: transformTraits(heroData.traits || [])
+    };
+}
 
 export const apiService = {
     // 获取英雄列表（包含特性）
     async getHeroes(): Promise<Hero[]> {
-        return [
-            {
-                id: 'rehan',
-                name: '雷恩',
-                type: '近战/战士',
-                icon: '⚔️',
-                baseStats: { strength: 120, dexterity: 60, intelligence: 40, vitality: 100 },
-                traits: [
-                    {
-                        id: 'rage',
-                        name: '怒火',
-                        description: '通过攻击或受击积攒怒气，提升攻速；怒气满后进入暴气状态',
-                        icon: '🔥',
-                        effects: ['攻击速度提升20%', '暴击率提升10%', '怒气满时进入暴气状态'],
-                        unlockLevel: 1,
-                        isDefault: true
-                    },
-                    {
-                        id: 'berserker_rage',
-                        name: '狂战士之怒',
-                        description: '生命值越低，造成的伤害越高',
-                        icon: '💢',
-                        effects: ['低生命时伤害提升', '攻击速度随生命降低而提升'],
-                        unlockLevel: 45
-                    },
-                    {
-                        id: 'ancestral_call',
-                        name: '先祖召唤',
-                        description: '召唤先祖之灵协助战斗',
-                        icon: '👻',
-                        effects: ['召唤先祖之灵', '先祖提供伤害加成', '协同攻击'],
-                        unlockLevel: 45
-                    },
-                    {
-                        id: 'war_cry',
-                        name: '战吼',
-                        description: '强大的战吼技能，提升自身和队友能力',
-                        icon: '📢',
-                        effects: ['战吼范围扩大', '提供护甲和抗性', '嘲讽敌人'],
-                        unlockLevel: 60
-                    },
-                    {
-                        id: 'battle_fury',
-                        name: '战斗狂怒',
-                        description: '连续攻击时获得额外增益',
-                        icon: '⚡',
-                        effects: ['连击增益效果', '攻击速度叠加', '伤害逐步提升'],
-                        unlockLevel: 60
-                    },
-                    {
-                        id: 'indomitable',
-                        name: '不屈意志',
-                        description: '濒死时获得强大生存能力',
-                        icon: '🛡️',
-                        effects: ['濒死时无敌', '生命恢复提升', '伤害减免'],
-                        unlockLevel: 75
-                    },
-                    {
-                        id: 'rampage',
-                        name: '狂暴突进',
-                        description: '冲锋技能获得强化，可连续使用',
-                        icon: '💨',
-                        effects: ['冲锋无冷却', '冲锋伤害提升', '击退效果增强'],
-                        unlockLevel: 75
-                    }
-                ]
-            },
-            {
-                id: 'carino',
-                name: '卡里诺',
-                type: '远程/游侠',
-                icon: '🏹',
-                baseStats: { strength: 60, dexterity: 120, intelligence: 50, vitality: 80 },
-                traits: [
-                    {
-                        id: 'glory_ranger',
-                        name: '荣光游侠',
-                        description: '通过装填特殊弹药，有几率触发魔术射击',
-                        icon: '🎯',
-                        effects: ['特殊弹药系统', '魔术射击触发', '高连击效果'],
-                        unlockLevel: 1,
-                        isDefault: true
-                    },
-                    {
-                        id: 'trick_shot',
-                        name: '诡计射击',
-                        description: '子弹可以弹射多个目标',
-                        icon: '🔄',
-                        effects: ['子弹弹射', '多目标伤害', '穿透效果'],
-                        unlockLevel: 45
-                    },
-                    {
-                        id: 'sniper_focus',
-                        name: '狙击专注',
-                        description: '站立不动时获得精准和伤害加成',
-                        icon: '🎯',
-                        effects: ['站立伤害加成', '暴击率提升', '穿透力增强'],
-                        unlockLevel: 45
-                    },
-                    {
-                        id: 'rapid_fire',
-                        name: '快速射击',
-                        description: '大幅提升攻击速度',
-                        icon: '💨',
-                        effects: ['攻击速度大幅提升', '装填速度加快', '移动射击'],
-                        unlockLevel: 60
-                    },
-                    {
-                        id: 'explosive_arrow',
-                        name: '爆炸箭矢',
-                        description: '箭矢命中后产生爆炸效果',
-                        icon: '💥',
-                        effects: ['箭矢爆炸', '范围伤害', '击退效果'],
-                        unlockLevel: 60
-                    },
-                    {
-                        id: 'piercing_shot',
-                        name: '穿透射击',
-                        description: '箭矢可以穿透多个敌人',
-                        icon: '➰',
-                        effects: ['无限穿透', '伤害不衰减', '连锁反应'],
-                        unlockLevel: 75
-                    },
-                    {
-                        id: 'elemental_arrow',
-                        name: '元素箭矢',
-                        description: '箭矢附带随机元素效果',
-                        icon: '🌈',
-                        effects: ['随机元素伤害', '元素异常状态', '伤害类型转换'],
-                        unlockLevel: 75
-                    }
-                ]
-            },
-            {
-                id: 'yosa',
-                name: '尤莎',
-                type: '法师/元素',
-                icon: '🔮',
-                baseStats: { strength: 40, dexterity: 60, intelligence: 140, vitality: 70 },
-                traits: [
-                    {
-                        id: 'ice_fire',
-                        name: '冰焰',
-                        description: '引导元素之力，通过切换冰霜与火焰形态获得不同增益',
-                        icon: '❄️',
-                        effects: ['冰火形态切换', '元素之力引导', '形态专属增益'],
-                        unlockLevel: 1,
-                        isDefault: true
-                    },
-                    {
-                        id: 'elemental_mastery',
-                        name: '元素精通',
-                        description: '提升所有元素伤害',
-                        icon: '🌟',
-                        effects: ['全元素伤害提升', '元素抗性穿透', '元素异常增强'],
-                        unlockLevel: 45
-                    },
-                    {
-                        id: 'arcane_power',
-                        name: '奥术能量',
-                        description: '法力值越高，伤害越高',
-                        icon: '💫',
-                        effects: ['高法力伤害加成', '法力恢复提升', '技能消耗降低'],
-                        unlockLevel: 45
-                    },
-                    {
-                        id: 'spell_echo',
-                        name: '法术回响',
-                        description: '法术有几率重复释放',
-                        icon: '📝',
-                        effects: ['法术重复释放', '不消耗额外法力', '伤害叠加'],
-                        unlockLevel: 60
-                    },
-                    {
-                        id: 'elemental_fusion',
-                        name: '元素融合',
-                        description: '混合元素产生新效果',
-                        icon: '⚗️',
-                        effects: ['元素混合效果', '新技能解锁', '伤害类型组合'],
-                        unlockLevel: 60
-                    },
-                    {
-                        id: 'arcane_storm',
-                        name: '奥术风暴',
-                        description: '召唤强大的奥术风暴',
-                        icon: '🌪️',
-                        effects: ['奥术风暴召唤', '持续范围伤害', '控制效果'],
-                        unlockLevel: 75
-                    },
-                    {
-                        id: 'elemental_avatar',
-                        name: '元素化身',
-                        description: '变身为纯元素形态',
-                        icon: '🔥',
-                        effects: ['元素形态变身', '技能全面强化', '免疫相应元素'],
-                        unlockLevel: 75
-                    }
-                ]
-            },
-            // 其他英雄数据类似，省略以节省空间...
-        ];
-    },
+        try {
+            const rawHeroes = await apiClient.get<any[]>('/hero');
+            
 
+            // 转换数据格式
+            return rawHeroes.map(heroData =>
+                transformHeroData(heroData)
+            );
+        } catch (error) {
+            console.error('获取英雄列表失败:', error);
+            // 如果后端API不可用，返回默认数据作为fallback
+            return getDefaultHeroes();
+        }
+    },
     // 获取技能列表
     async getSkills(): Promise<Skill[]> {
         return [
@@ -1269,3 +1112,127 @@ export const apiService = {
         return Promise.resolve(null);
     },
 };
+
+function getDefaultHeroes(): Hero[] {
+    return [
+        {
+            id: 'rehan',
+            name: '雷恩',
+            desc: '近战/战士',
+            icon: '⚔️',
+            baseStats: {strength: 120, dexterity: 60, intelligence: 40, vitality: 100},
+            traits: [
+                {
+                    id: '111',
+                    name: '怒火',
+                    desc: '通过攻击或受击积攒怒气，提升攻速；怒气满后进入暴气状态',
+                    icon: '🔥',
+                    unlock_level: 1,
+                    isDefault: true
+                },
+                {
+                    id: '222',
+                    name: '狂战士之怒',
+                    desc: '生命值越低，造成的伤害越高',
+                    icon: '💢',
+                    unlock_level: 45
+                },
+                {
+                    id: "333",
+                    name: '先祖召唤',
+                    desc: '召唤先祖之灵协助战斗',
+                    icon: '👻',
+                    unlock_level: 45
+                },
+                {
+                    id: "444",
+                    name: '战吼',
+                    desc: '强大的战吼技能，提升自身和队友能力',
+                    icon: '📢',
+                    unlock_level: 60
+                },
+                {
+                    id: "555",
+                    name: '战斗狂怒',
+                    desc: '连续攻击时获得额外增益',
+                    icon: '⚡',
+                    unlock_level: 60
+                },
+                {
+                    id: "666",
+                    name: '不屈意志',
+                    desc: '濒死时获得强大生存能力',
+                    icon: '🛡️',
+                    unlock_level: 75
+                },
+                {
+                    id: "777",
+                    name: '狂暴突进',
+                    desc: '冲锋技能获得强化，可连续使用',
+                    icon: '💨',
+                    unlock_level: 75
+                },
+            ]
+        },
+        {
+            id: 'xxxx',
+            name: '雷恩',
+            desc: '近战/战士',
+            icon: '⚔️',
+            baseStats: {strength: 120, dexterity: 60, intelligence: 40, vitality: 100},
+            traits: [
+                {
+                    id: '111',
+                    name: '怒火',
+                    desc: '通过攻击或受击积攒怒气，提升攻速；怒气满后进入暴气状态',
+                    icon: '🔥',
+                    unlock_level: 1,
+                    isDefault: true
+                },
+                {
+                    id: '222',
+                    name: '狂战士之怒',
+                    desc: '生命值越低，造成的伤害越高',
+                    icon: '💢',
+                    unlock_level: 45
+                },
+                {
+                    id: "333",
+                    name: '先祖召唤',
+                    desc: '召唤先祖之灵协助战斗',
+                    icon: '👻',
+                    unlock_level: 45
+                },
+                {
+                    id: "444",
+                    name: '战吼',
+                    desc: '强大的战吼技能，提升自身和队友能力',
+                    icon: '📢',
+                    unlock_level: 60
+                },
+                {
+                    id: "555",
+                    name: '战斗狂怒',
+                    desc: '连续攻击时获得额外增益',
+                    icon: '⚡',
+                    unlock_level: 60
+                },
+                {
+                    id: "666",
+                    name: '不屈意志',
+                    desc: '濒死时获得强大生存能力',
+                    icon: '🛡️',
+                    unlock_level: 75
+                },
+                {
+                    id: "777",
+                    name: '狂暴突进',
+                    desc: '冲锋技能获得强化，可连续使用',
+                    icon: '💨',
+                    unlock_level: 75
+                },
+            ]
+        },
+        // 其他英雄数据类似，省略以节省空间...
+    ]
+}

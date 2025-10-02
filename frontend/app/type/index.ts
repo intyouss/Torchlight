@@ -1,19 +1,10 @@
 // types/index.ts
-export interface HeroTrait {
-    id: string;
-    name: string;
-    description: string;
-    icon: string;
-    effects: string[];
-}
-
 export interface Hero {
     id: string;
     name: string;
-    type: string;
-    icon: string;
-    description?: string;
-    baseStats: CharacterStats;
+    icon?: string;
+    desc: string;
+    baseStats?: CharacterStats;
     traits: HeroTrait[];
 }
 
@@ -46,10 +37,9 @@ export interface SkillBuild {
 export interface HeroTrait {
     id: string;
     name: string;
-    description: string;
-    icon: string;
-    effects: string[];
-    unlockLevel: number; // 解锁等级
+    desc: string;
+    icon?: string;
+    unlock_level: number; // 解锁等级
     isDefault?: boolean; // 是否为默认特性
 }
 

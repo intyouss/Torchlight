@@ -440,10 +440,10 @@ export default function TorchlightCalculator() {
         const traitsByLevel: { [key: number]: HeroTrait[] } = {};
 
         hero.traits.forEach(trait => {
-            if (!traitsByLevel[trait.unlockLevel]) {
-                traitsByLevel[trait.unlockLevel] = [];
+            if (!traitsByLevel[trait.unlock_level]) {
+                traitsByLevel[trait.unlock_level] = [];
             }
-            traitsByLevel[trait.unlockLevel].push(trait);
+            traitsByLevel[trait.unlock_level].push(trait);
         });
 
         return Object.entries(traitsByLevel).map(([level, traits]) => ({
@@ -473,7 +473,7 @@ export default function TorchlightCalculator() {
         const hero = heroes.find(h => h.id === heroId);
         if (hero) {
             // 设置默认特性（1级特性）
-            const defaultTrait = hero.traits.find(t => t.unlockLevel === 1 && t.isDefault);
+            const defaultTrait = hero.traits.find(t => t.unlock_level === 1 && t.isDefault);
             if (defaultTrait) {
                 setTraitSelections(prev => ({
                     ...prev,
@@ -750,7 +750,7 @@ export default function TorchlightCalculator() {
                                 >
                                     <div className="text-2xl mb-1">{hero.icon}</div>
                                     <div className="font-semibold text-sm">{hero.name}</div>
-                                    <div className="text-xs text-gray-400">{hero.type}</div>
+                                    <div className="text-xs text-gray-400">{hero.desc}</div>
                                 </button>
                             ))}
                         </div>
@@ -802,17 +802,7 @@ export default function TorchlightCalculator() {
                                                         </div>
                                                     </div>
                                                     <div
-                                                        className="text-sm text-gray-300 mb-3">{trait.description}</div>
-                                                    <div className="space-y-1">
-                                                        {trait.effects.map((effect, index) => (
-                                                            <div key={index}
-                                                                 className="text-xs text-gray-400 flex items-center">
-                                                                <div
-                                                                    className="w-1 h-1 bg-orange-500 rounded-full mr-2"></div>
-                                                                {effect}
-                                                            </div>
-                                                        ))}
-                                                    </div>
+                                                        className="text-sm text-gray-300 mb-3">{trait.desc}</div>
                                                 </button>
                                             ))}
                                         </div>
@@ -831,7 +821,7 @@ export default function TorchlightCalculator() {
                                                 <div key={trait.id} className="flex items-center text-sm">
                                                     <span className="text-orange-400 mr-2">{trait.icon}</span>
                                                     <span className="text-gray-300">
-                  Lv.{trait.unlockLevel} {trait.name}
+                  Lv.{trait.unlock_level} {trait.name}
                 </span>
                                                 </div>
                                             ) : null;
@@ -1858,7 +1848,7 @@ export default function TorchlightCalculator() {
                                         <div className="text-lg font-semibold text-orange-400">
                                             {currentTrait.name}
                                         </div>
-                                        <div className="text-xs text-gray-300 mt-1">{currentTrait.description}</div>
+                                        <div className="text-xs text-gray-300 mt-1">{currentTrait.desc}</div>
                                     </div>
                                 )}
                             </div>
