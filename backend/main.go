@@ -14,7 +14,7 @@ func main() {
 	s := api.NewServer()
 	go func() {
 		if err := s.Run("/api/v1/"); err != nil {
-			slog.ErrorContext(ctx, "failed to run server", slog.Any("err", err))
+			slog.ErrorContext(ctx, "服务器运行失败", slog.Any("err", err))
 			os.Exit(1)
 		}
 	}()

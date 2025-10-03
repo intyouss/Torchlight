@@ -2,14 +2,13 @@ package api
 
 import (
 	"Torchlight/api/router"
+	"Torchlight/config"
 	"context"
 	"github.com/gin-gonic/gin"
 	"log/slog"
 	"net/http"
 	"time"
 )
-
-const ADDR = ":8080"
 
 type Server struct {
 	server http.Server
@@ -26,6 +25,14 @@ func (s *Server) Register(group ...router.Group) {
 
 func (s *Server) Run(routePrefix string) error {
 	s.registerAll()
+
+	conf := config.NewConfig()
+	if err := conf.Load(); err != nil {
+		slog.Error("[SERVER] 配置文件加载失败", err)
+		return err
+	}
+	slog.Info("[SERVER] 配置文件加载成功")
+
 	engine := gin.Default()
 	apiRouter := engine.Group(routePrefix)
 	r := router.NewRouter(apiRouter)
@@ -37,23 +44,25 @@ func (s *Server) Run(routePrefix string) error {
 		}
 	}
 
+	addr := conf.Server.Host + ":" + conf.Server.Port
+
 	s.server = http.Server{
-		Addr:    ADDR,
+		Addr:    addr,
 		Handler: engine.Handler(),
 	}
-	slog.Info("[server] listening and serving HTTP on " + ADDR)
+	slog.Info("[SERVER] 服务器监听地址: " + addr)
 	return s.server.ListenAndServe()
 }
 
 func (s *Server) Shutdown(ctx context.Context) error {
-	slog.Info("[server] waiting for server shutdown...")
+	slog.Info("[SERVER] 服务器正在关闭中...")
 	ctx, cancel := context.WithTimeout(ctx, time.Second*30)
 	defer cancel()
 	if err := s.server.Shutdown(ctx); err != nil {
-		slog.Error("[server] failed to shutdown", err)
+		slog.Error("[SERVER] 服务器关闭失败", err)
 		return err
 	}
 
-	slog.Info("[server] server shutdown")
+	slog.Info("[SERVER] 服务器已关闭")
 	return nil
 }

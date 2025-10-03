@@ -3,6 +3,7 @@ package tools
 import (
 	"bytes"
 	"fmt"
+	"log/slog"
 	"os"
 	"os/exec"
 )
@@ -36,9 +37,11 @@ func PyRun(fileName string) ([]byte, error) {
 
 	// 获取原始输出
 	output := stdout.Bytes()
-
-	// 调试信息
-	fmt.Printf("收到 %d 字节数据\n", len(output))
+	debug := stderr.Bytes()
+	if len(debug) > 0 {
+		slog.Info("Python脚本输出:\n%s", string(debug))
+	}
+	slog.Info("Python脚本执行成功: ", fileName)
 
 	if len(output) == 0 {
 		return nil, fmt.Errorf("脚本没有输出任何内容")

@@ -1,0 +1,16 @@
+package skill
+
+import (
+	"Torchlight/api/router"
+	"Torchlight/service"
+	"net/http"
+)
+
+func (a *ActiveSkill) QueryActiveSkillList(c *router.Context) {
+	data, err := service.GetActiveSkills(c)
+	if err != nil {
+		c.Error(http.StatusInternalServerError, err.Error())
+		return
+	}
+	c.Success(data)
+}
