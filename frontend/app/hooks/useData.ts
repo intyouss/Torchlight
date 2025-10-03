@@ -1,10 +1,13 @@
+// useData.ts - 修改hook以分别获取不同类型的技能
 import { useState, useEffect } from 'react';
 import { Hero, Skill, CharacterStats, EquipmentStats } from '../type';
 import { apiService } from '../lib/api';
 
 interface UseDataReturn {
     heroes: Hero[];
-    skills: Skill[];
+    activeSkills: Skill[];
+    passiveSkills: Skill[];
+    supportSkills: Skill[];
     defaultStats: CharacterStats | null;
     defaultEquipment: EquipmentStats | null;
     loading: boolean;
@@ -14,7 +17,9 @@ interface UseDataReturn {
 
 export const useData = (): UseDataReturn => {
     const [heroes, setHeroes] = useState<Hero[]>([]);
-    const [skills, setSkills] = useState<Skill[]>([]);
+    const [activeSkills, setActiveSkills] = useState<Skill[]>([]);
+    const [passiveSkills, setPassiveSkills] = useState<Skill[]>([]);
+    const [supportSkills, setSupportSkills] = useState<Skill[]>([]);
     const [defaultStats, setDefaultStats] = useState<CharacterStats | null>(null);
     const [defaultEquipment, setDefaultEquipment] = useState<EquipmentStats | null>(null);
     const [loading, setLoading] = useState(true);
@@ -26,15 +31,19 @@ export const useData = (): UseDataReturn => {
             setError(null);
 
             // 并行获取所有数据
-            const [heroesData, skillsData, statsData, equipmentData] = await Promise.all([
+            const [heroesData, activeSkillsData, passiveSkillsData, supportSkillsData, statsData, equipmentData] = await Promise.all([
                 apiService.getHeroes(),
-                apiService.getSkills(),
+                apiService.getActiveSkills(),
+                apiService.getPassiveSkills(),
+                apiService.getSupportSkills(),
                 apiService.getDefaultStats(),
                 apiService.getDefaultEquipment()
             ]);
 
             setHeroes(heroesData);
-            setSkills(skillsData);
+            setActiveSkills(activeSkillsData);
+            setPassiveSkills(passiveSkillsData);
+            setSupportSkills(supportSkillsData);
             setDefaultStats(statsData);
             setDefaultEquipment(equipmentData);
         } catch (err) {
@@ -56,7 +65,9 @@ export const useData = (): UseDataReturn => {
 
     return {
         heroes,
-        skills,
+        activeSkills,
+        passiveSkills,
+        supportSkills,
         defaultStats,
         defaultEquipment,
         loading,

@@ -1,4 +1,5 @@
-import { CharacterStats, DamageResult, EquipmentStats, Hero, HeroTrait, Skill, TalentBook } from '../type';
+// api.ts - 修改API服务，分别获取不同类型的技能
+import {CharacterStats, DamageResult, EquipmentStats, Hero, HeroTrait, Skill, TalentBook} from '../type';
 
 // API基础配置
 const API_BASE_URL = 'http://localhost:8080/api/v1';
@@ -45,6 +46,21 @@ function transformHeroData(heroData: any): Hero {
         name: heroData.name || '',
         desc: heroData.desc || '',
         traits: transformTraits(heroData.traits || [])
+    };
+}
+
+function transformSkillData(skillData: any): Skill {
+    return {
+        id: skillData.id || '',
+        name: skillData.name || '未知技能',
+        description: skillData.description || '',
+        type: skillData.type || '',
+        icon: skillData.icon || '❓',
+        tags: skillData.tags || [],
+        manaCost: skillData.mana_cost || "",
+        castingSpeed: skillData.casting_speed || "",
+        cooldown: skillData.cooldown || "",
+        weaponRestrictions: skillData.weapon_restrictions || []
     };
 }
 
@@ -163,96 +179,6 @@ const calculateDamageFrontend = (params: {
     };
 };
 
-// 默认数据函数
-const getDefaultSkills = (): Skill[] => [
-    // 主动技能
-    {
-        id: 'whirlwind',
-        name: '旋风斩',
-        type: 'active',
-        description: '快速旋转攻击周围敌人，造成物理伤害',
-        icon: '🌪️',
-        tags: ['attack', 'physical', 'area'],
-        manaCost: 15,
-        cooldown: 2
-    },
-    {
-        id: 'fireball',
-        name: '火球术',
-        type: 'active',
-        description: '发射火球攻击敌人，造成火焰伤害并附加灼烧',
-        icon: '🔥',
-        tags: ['spell', 'fire', 'projectile'],
-        manaCost: 25,
-        cooldown: 3
-    },
-    // ... 其他技能数据
-];
-
-const getDefaultHeroes = (): Hero[] => [
-    {
-        id: 'rehan',
-        name: '雷恩',
-        desc: '近战/战士',
-        icon: '⚔️',
-        baseStats: { strength: 120, dexterity: 60, intelligence: 40, vitality: 100 },
-        traits: [
-            {
-                id: 'rage',
-                name: '怒火',
-                desc: '通过攻击或受击积攒怒气，提升攻速；怒气满后进入暴气状态',
-                icon: '🔥',
-                unlock_level: 1,
-                isDefault: true
-            },
-            {
-                id: 'berserker_rage',
-                name: '狂战士之怒',
-                desc: '生命值越低，造成的伤害越高',
-                icon: '💢',
-                unlock_level: 45
-            },
-            // ... 其他特性
-        ]
-    },
-    // ... 其他英雄数据
-];
-
-const getDefaultTalentBooks = (): TalentBook[] => [
-    {
-        id: 'warrior_book',
-        name: '战士圣典',
-        icon: '⚔️',
-        description: '战士之道的力量源泉',
-        pages: [
-            {
-                id: 'warrior_might',
-                name: '战士之力',
-                icon: '💪',
-                description: '强化物理攻击和生存能力',
-                startingNode: 'physical_power',
-                talentTree: [
-                    {
-                        id: 'physical_power',
-                        name: '物理力量',
-                        icon: '💪',
-                        description: '每点+5% 物理伤害',
-                        type: 'minor',
-                        position: { x: 0, y: 0 },
-                        connections: ['attack_speed'],
-                        maxPoints: 3,
-                        currentPoints: 0,
-                        columnRequirement: 0
-                    },
-                    // ... 其他天赋节点
-                ]
-            },
-            // ... 其他天赋页
-        ]
-    },
-    // ... 其他天赋书
-];
-
 export const apiService = {
     // 获取英雄列表
     async getHeroes(): Promise<Hero[]> {
@@ -265,15 +191,34 @@ export const apiService = {
         }
     },
 
-    // 获取技能列表
-    async getSkills(): Promise<Skill[]> {
+    // api.ts - 在 API 方法中添加调试
+    async getActiveSkills(): Promise<Skill[]> {
         try {
-            //如果后端有技能API，可以在这里调用
-            const skills = await apiClient.get<Skill[]>('/skills');
-            return skills;
+            const rawSkills = await apiClient.get<any[]>('/skill/active');
+            return rawSkills.map(skillData => transformSkillData(skillData));
         } catch (error) {
-            console.error('获取技能列表失败，使用默认数据:', error);
-            return getDefaultSkills();
+            console.error('获取主动技能列表失败，使用默认数据:', error);
+            return getDefaultActiveSkills();
+        }
+    },
+
+    async getPassiveSkills(): Promise<Skill[]> {
+        try {
+            const rawSkills = await apiClient.get<any[]>('/skill/passive');
+            return rawSkills.map(skillData => transformSkillData(skillData));
+        } catch (error) {
+            console.error('获取被动技能列表失败，使用默认数据:', error);
+            return getDefaultPassiveSkills();
+        }
+    },
+
+    async getSupportSkills(): Promise<Skill[]> {
+        try {
+            const rawSkills = await apiClient.get<any[]>('/skill/support');
+            return rawSkills.map(skillData => transformSkillData(skillData));
+        } catch (error) {
+            console.error('获取辅助技能列表失败，使用默认数据:', error);
+            return getDefaultSupportSkills();
         }
     },
 
@@ -287,7 +232,6 @@ export const apiService = {
         };
     },
 
-    // 获取默认装备
     async getDefaultEquipment(): Promise<EquipmentStats> {
         return {
             weaponDamage: { min: 50, max: 100 },
@@ -303,6 +247,8 @@ export const apiService = {
             weaponType: 'sword',
         };
     },
+
+
 
     // 计算伤害
     async calculateDamage(params: {
@@ -370,3 +316,132 @@ export const apiService = {
         }
     }
 };
+
+// 默认数据函数 - 分别定义不同类型的技能
+const getDefaultActiveSkills = (): Skill[] => [
+    {
+        id: 'whirlwind',
+        name: '旋风斩',
+        type: 'active',
+        description: '快速旋转攻击周围敌人，造成物理伤害',
+        icon: '🌪️',
+        tags: ['attack', 'physical', 'area'],
+        manaCost: "15",
+        cooldown: "2"
+    },
+    {
+        id: 'fireball',
+        name: '火球术',
+        type: 'active',
+        description: '发射火球攻击敌人，造成火焰伤害并附加灼烧',
+        icon: '🔥',
+        tags: ['spell', 'fire', 'projectile'],
+        manaCost: "25",
+        cooldown: "3"
+    },
+    // ... 其他主动技能
+];
+
+const getDefaultPassiveSkills = (): Skill[] => [
+    {
+        id: 'iron_skin',
+        name: '铁皮肤',
+        type: 'passive',
+        description: '提升物理防御和元素抗性',
+        icon: '🛡️',
+        tags: ['defense', 'survival'],
+    },
+    {
+        id: 'critical_strike',
+        name: '致命一击',
+        type: 'passive',
+        description: '提升暴击几率和暴击伤害',
+        icon: '🎯',
+        tags: ['offense', 'critical'],
+    },
+    // ... 其他被动技能
+];
+
+const getDefaultSupportSkills = (): Skill[] => [
+    {
+        id: 'empower',
+        name: '强化',
+        type: 'support',
+        description: '增强主动技能的伤害',
+        icon: '⚡',
+        tags: ['enhance', 'damage'],
+    },
+    {
+        id: 'multiple_projectiles',
+        name: '多重投射物',
+        type: 'support',
+        description: '使投射物技能发射多个投射物',
+        icon: '🎯',
+        tags: ['projectile', 'multiple'],
+    },
+    // ... 其他辅助技能
+];
+
+const getDefaultHeroes = (): Hero[] => [
+    {
+        id: 'rehan',
+        name: '雷恩',
+        desc: '近战/战士',
+        icon: '⚔️',
+        baseStats: { strength: 120, dexterity: 60, intelligence: 40, vitality: 100 },
+        traits: [
+            {
+                id: 'rage',
+                name: '怒火',
+                desc: '通过攻击或受击积攒怒气，提升攻速；怒气满后进入暴气状态',
+                icon: '🔥',
+                unlock_level: 1,
+                isDefault: true
+            },
+            {
+                id: 'berserker_rage',
+                name: '狂战士之怒',
+                desc: '生命值越低，造成的伤害越高',
+                icon: '💢',
+                unlock_level: 45
+            },
+            // ... 其他特性
+        ]
+    },
+    // ... 其他英雄数据
+];
+
+const getDefaultTalentBooks = (): TalentBook[] => [
+    {
+        id: 'warrior_book',
+        name: '战士圣典',
+        icon: '⚔️',
+        description: '战士之道的力量源泉',
+        pages: [
+            {
+                id: 'warrior_might',
+                name: '战士之力',
+                icon: '💪',
+                description: '强化物理攻击和生存能力',
+                startingNode: 'physical_power',
+                talentTree: [
+                    {
+                        id: 'physical_power',
+                        name: '物理力量',
+                        icon: '💪',
+                        description: '每点+5% 物理伤害',
+                        type: 'minor',
+                        position: { x: 0, y: 0 },
+                        connections: ['attack_speed'],
+                        maxPoints: 3,
+                        currentPoints: 0,
+                        columnRequirement: 0
+                    },
+                    // ... 其他天赋节点
+                ]
+            },
+            // ... 其他天赋页
+        ]
+    },
+    // ... 其他天赋书
+];

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Sword, Shield, Users, Settings, Calculator, Loader2, Star } from 'lucide-react';
+import { Sword, Loader2 } from 'lucide-react';
 import { useData } from './hooks/useData';
 import { apiService } from './lib/api';
 import HeroSelection from './components/HeroSelection';
@@ -11,10 +11,19 @@ import EquipmentConfiguration from './components/EquipmentConfiguration';
 import SkillConfiguration from './components/SkillConfiguration';
 import TalentSystem from './components/TalentSystem';
 import DamageResults from './components/DamageResults';
-import { CharacterStats, EquipmentStats, DamageResult, HeroTrait } from './type';
+import { CharacterStats, EquipmentStats, DamageResult } from './type';
 
 export default function TorchlightCalculator() {
-    const { heroes, skills, defaultStats, defaultEquipment, loading, error } = useData();
+    const {
+        heroes,
+        activeSkills,
+        passiveSkills,
+        supportSkills,
+        defaultStats,
+        defaultEquipment,
+        loading,
+        error
+    } = useData();
 
     const [selectedHero, setSelectedHero] = useState<string>('');
     const [selectedSkill, setSelectedSkill] = useState<string>('');
@@ -41,16 +50,28 @@ export default function TorchlightCalculator() {
                 }));
             }
         }
-        if (skills.length > 0 && !selectedSkill) {
-            setSelectedSkill(skills[0].id);
+
+        // 设置默认技能（如果有主动技能）
+        if (activeSkills.length > 0 && !selectedSkill) {
+            setSelectedSkill(activeSkills[0].id);
         }
+
         if (defaultStats && !stats) {
             setStats(defaultStats);
         }
         if (defaultEquipment && !equipment) {
             setEquipment(defaultEquipment);
         }
-    }, [heroes, skills, defaultStats, defaultEquipment, selectedHero, selectedSkill, stats, equipment]);
+    }, [
+        heroes,
+        activeSkills,
+        defaultStats,
+        defaultEquipment,
+        selectedHero,
+        selectedSkill,
+        stats,
+        equipment
+    ]);
 
     const handleHeroChange = (heroId: string) => {
         setSelectedHero(heroId);
@@ -122,6 +143,11 @@ export default function TorchlightCalculator() {
         }
     };
 
+    // 获取所有技能的合并列表（用于向后兼容）
+    const getAllSkills = () => {
+        return [...activeSkills, ...passiveSkills, ...supportSkills];
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 flex items-center justify-center">
@@ -144,7 +170,7 @@ export default function TorchlightCalculator() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white">
             {/* 导航栏 */}
-            <nav className="bg-gray-800 border-b border-orange-500/30">
+            <nav className="sticky top-0 z-50 bg-gray-800 border-b border-orange-500/30">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-16">
                         <div className="flex items-center">
@@ -184,7 +210,9 @@ export default function TorchlightCalculator() {
                 )}
 
                 <SkillConfiguration
-                    skills={skills}
+                    activeSkills={activeSkills}
+                    passiveSkills={passiveSkills}
+                    supportSkills={supportSkills}
                     selectedHero={selectedHero}
                     equipment={equipment}
                 />

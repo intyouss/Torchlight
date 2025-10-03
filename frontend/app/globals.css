@@ -37,3 +37,31 @@
   cursor: pointer;
   border: none;
 }
+
+/* 在全局 CSS 中添加 */
+.skill-library-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(204, 204, 195, 0.5) rgba(30, 36, 40, 0.5);
+}
+
+html, body {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track {
+  display: none !important;
+}
+
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb {
+  display: none !important;
+}

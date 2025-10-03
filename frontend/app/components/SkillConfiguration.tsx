@@ -4,19 +4,28 @@ import { Sword } from 'lucide-react';
 import SkillLibrary from './SkillLibrary';
 
 interface SkillConfigurationProps {
-    skills: Skill[];
+    activeSkills: Skill[];
+    passiveSkills: Skill[];
+    supportSkills: Skill[];
     selectedHero: string;
     equipment: EquipmentStats | null;
 }
 
-export default function SkillConfiguration({ skills, selectedHero, equipment }: SkillConfigurationProps) {
+export default function SkillConfiguration({
+                                               activeSkills,
+                                               passiveSkills,
+                                               supportSkills,
+                                               selectedHero,
+                                               equipment
+                                           }: SkillConfigurationProps) {
+    
     const [skillBuild, setSkillBuild] = useState<SkillBuild>({
         activeSlots: Array(5).fill(null).map(() => ({ mainSkill: null, supportSkills: Array(5).fill(null) })),
-        passiveSlots: Array(4).fill(null).map(() => ({ mainSkill: null, supportSkills: Array(5).fill(null) })),
-        triggerSlots: Array(3).fill(null).map(() => ({ mainSkill: null, supportSkills: Array(5).fill(null) }))
+        passiveSlots: Array(4).fill(null).map(() => ({ mainSkill: null, supportSkills: Array(5).fill(null) }))
+        // 移除 triggerSlots
     });
 
-    const [selectedSkillType, setSelectedSkillType] = useState<'active' | 'passive' | 'trigger'>('active');
+    const [selectedSkillType, setSelectedSkillType] = useState<'active' | 'passive'>('active'); // 移除 'trigger'
     const [selectedSlotIndex, setSelectedSlotIndex] = useState<number | null>(null);
     const [selectedSupportSlot, setSelectedSupportSlot] = useState<{
         slotType: 'active' | 'passive';
@@ -25,12 +34,21 @@ export default function SkillConfiguration({ skills, selectedHero, equipment }: 
     } | null>(null);
     const [isSkillLibraryOpen, setIsSkillLibraryOpen] = useState(false);
 
-    const getAvailableSkills = (slotType: 'active' | 'passive' | 'trigger', slotIndex?: number) => {
-        return skills.filter(skill => {
-            if (skill.type !== slotType && !(slotType === 'active' && skill.type === 'support')) {
-                return false;
-            }
+    // 修复后的过滤逻辑
+    const getAvailableSkills = (slotType: 'active' | 'passive', slotIndex?: number) => {
+        let availableSkills: Skill[] = [];
 
+        switch (slotType) {
+            case 'active':
+                availableSkills = activeSkills;
+                break;
+            case 'passive':
+                availableSkills = passiveSkills;
+                break;
+        }
+
+        return availableSkills.filter(skill => {
+            // 检查被动技能重复（只在选择被动技能时检查）
             if (slotType === 'passive' && skill.type === 'passive') {
                 const isUsedInOtherSlot = skillBuild.passiveSlots.some((slot, index) =>
                     index !== slotIndex && slot.mainSkill?.id === skill.id
@@ -38,11 +56,23 @@ export default function SkillConfiguration({ skills, selectedHero, equipment }: 
                 if (isUsedInOtherSlot) return false;
             }
 
-            return !(skill.weaponRestrictions && equipment?.weaponType && !skill.weaponRestrictions.includes(equipment.weaponType));
+            return true;
         });
     };
 
-    const selectMainSkill = (skill: Skill, slotType: 'active' | 'passive' | 'trigger', slotIndex: number) => {
+    const getAvailableSupportSkills = (slotType: 'active' | 'passive', slotIndex: number) => {
+        const currentSlot = skillBuild[slotType === 'active' ? 'activeSlots' : 'passiveSlots'][slotIndex];
+        const existingSupportSkillIds = currentSlot.supportSkills
+            .filter(skill => skill !== null)
+            .map(skill => skill!.id);
+
+        return supportSkills.filter(skill => {
+            // 过滤掉当前技能槽内已存在的辅助技能
+            return !existingSupportSkillIds.includes(skill.id);
+        });
+    };
+
+    const selectMainSkill = (skill: Skill, slotType: 'active' | 'passive', slotIndex: number) => {
         if (slotType === 'passive' && skill.type === 'passive') {
             const isAlreadyUsed = skillBuild.passiveSlots.some((slot, index) =>
                 index !== slotIndex && slot.mainSkill?.id === skill.id
@@ -56,8 +86,7 @@ export default function SkillConfiguration({ skills, selectedHero, equipment }: 
 
         setSkillBuild(prev => {
             const newBuild = { ...prev };
-            const slotArray = slotType === 'active' ? newBuild.activeSlots :
-                slotType === 'passive' ? newBuild.passiveSlots : newBuild.triggerSlots;
+            const slotArray = slotType === 'active' ? newBuild.activeSlots : newBuild.passiveSlots;
 
             slotArray[slotIndex] = {
                 mainSkill: skill,
@@ -70,6 +99,17 @@ export default function SkillConfiguration({ skills, selectedHero, equipment }: 
     };
 
     const selectSupportSkill = (supportSkill: Skill, slotType: 'active' | 'passive', slotIndex: number, supportIndex: number) => {
+        // 检查当前技能槽内是否已存在相同的辅助技能
+        const currentSlot = skillBuild[slotType === 'active' ? 'activeSlots' : 'passiveSlots'][slotIndex];
+        const isDuplicateInSameSlot = currentSlot.supportSkills.some((skill, index) =>
+            index !== supportIndex && skill?.id === supportSkill.id
+        );
+
+        if (isDuplicateInSameSlot) {
+            alert(`辅助技能 "${supportSkill.name}" 已经安装在该技能栏位中，同一个辅助技能不能重复安装。`);
+            return;
+        }
+
         setSkillBuild(prev => {
             const newBuild = { ...prev };
             const slotArray = slotType === 'active' ? newBuild.activeSlots : newBuild.passiveSlots;
@@ -91,11 +131,10 @@ export default function SkillConfiguration({ skills, selectedHero, equipment }: 
         setSelectedSupportSlot(null);
     };
 
-    const clearSkillSlot = (slotType: 'active' | 'passive' | 'trigger', slotIndex: number) => {
+    const clearSkillSlot = (slotType: 'active' | 'passive', slotIndex: number) => {
         setSkillBuild(prev => {
             const newBuild = { ...prev };
-            const slotArray = slotType === 'active' ? newBuild.activeSlots :
-                slotType === 'passive' ? newBuild.passiveSlots : newBuild.triggerSlots;
+            const slotArray = slotType === 'active' ? newBuild.activeSlots : newBuild.passiveSlots;
 
             slotArray[slotIndex] = {
                 mainSkill: null,
@@ -106,7 +145,7 @@ export default function SkillConfiguration({ skills, selectedHero, equipment }: 
         });
     };
 
-    const openSkillLibrary = (skillType: 'active' | 'passive' | 'trigger', slotIndex: number) => {
+    const openSkillLibrary = (skillType: 'active' | 'passive', slotIndex: number) => {
         setSelectedSkillType(skillType);
         setSelectedSlotIndex(slotIndex);
         setIsSkillLibraryOpen(true);
@@ -167,15 +206,27 @@ export default function SkillConfiguration({ skills, selectedHero, equipment }: 
                                 <div className="mb-3">
                                     {slot.mainSkill ? (
                                         <div className="flex items-center space-x-2 p-2 bg-orange-500/10 rounded-lg border border-orange-500/30">
-                                            <span className="text-xl">{slot.mainSkill.icon}</span>
+                                            {slot.mainSkill.icon ? (
+                                                slot.mainSkill.icon.startsWith('http') ? (
+                                                    <img
+                                                        src={slot.mainSkill.icon}
+                                                        alt={slot.mainSkill.name}
+                                                        className="w-6 h-6 object-cover rounded"
+                                                    />
+                                                ) : (
+                                                    <span className="text-xl">{slot.mainSkill.icon}</span>
+                                                )
+                                            ) : (
+                                                <span className="text-xl">❓</span>
+                                            )}
                                             <div className="flex-1">
                                                 <div className="font-semibold text-orange-300 text-sm">{slot.mainSkill.name}</div>
-                                                <div className="text-xs text-gray-400 truncate">{slot.mainSkill.description}</div>
+                                                <div className="text-xs text-gray-400 break-words whitespace-normal">{slot.mainSkill.description}</div>
                                                 <div className="flex flex-wrap gap-1 mt-1">
                                                     {slot.mainSkill.tags.map(tag => (
                                                         <span key={tag} className="px-1 py-0.5 bg-gray-700 rounded text-xs text-gray-300">
-                                                            {tag}
-                                                        </span>
+                        {tag}
+                    </span>
                                                     ))}
                                                 </div>
                                             </div>
@@ -210,7 +261,19 @@ export default function SkillConfiguration({ skills, selectedHero, equipment }: 
                                                 >
                                                     {supportSkill ? (
                                                         <div className="flex items-center space-x-2">
-                                                            <span className="text-lg">{supportSkill.icon}</span>
+                                                            {supportSkill.icon ? (
+                                                                supportSkill.icon.startsWith('http') ? (
+                                                                    <img
+                                                                        src={supportSkill.icon}
+                                                                        alt={supportSkill.name}
+                                                                        className="w-5 h-5 object-cover rounded"
+                                                                    />
+                                                                ) : (
+                                                                    <span className="text-lg">{supportSkill.icon}</span>
+                                                                )
+                                                            ) : (
+                                                                <span className="text-lg">❓</span>
+                                                            )}
                                                             <div className="flex-1">
                                                                 <div className="text-sm font-medium text-gray-300">{supportSkill.name}</div>
                                                                 <div className="text-xs text-gray-400 truncate">{supportSkill.description}</div>
@@ -271,14 +334,26 @@ export default function SkillConfiguration({ skills, selectedHero, equipment }: 
                                                     ? 'bg-red-500/10 border-red-500/30'
                                                     : 'bg-blue-500/10 border-blue-500/30'
                                             }`}>
-                                                <span className="text-xl">{slot.mainSkill.icon}</span>
+                                                {slot.mainSkill.icon ? (
+                                                    slot.mainSkill.icon.startsWith('http') ? (
+                                                        <img
+                                                            src={slot.mainSkill.icon}
+                                                            alt={slot.mainSkill.name}
+                                                            className="w-6 h-6 object-cover rounded"
+                                                        />
+                                                    ) : (
+                                                        <span className="text-xl">{slot.mainSkill.icon}</span>
+                                                    )
+                                                ) : (
+                                                    <span className="text-xl">❓</span>
+                                                )}
                                                 <div className="flex-1">
                                                     <div className={`font-semibold text-sm ${
                                                         isDuplicate ? 'text-red-300' : 'text-blue-300'
                                                     }`}>
                                                         {slot.mainSkill.name}
                                                     </div>
-                                                    <div className="text-xs text-gray-400 truncate">{slot.mainSkill.description}</div>
+                                                    <div className="text-xs text-gray-400 break-words whitespace-normal">{slot.mainSkill.description}</div>
                                                 </div>
                                             </div>
                                         ) : (
@@ -314,7 +389,7 @@ export default function SkillConfiguration({ skills, selectedHero, equipment }: 
                                                                 <span className="text-lg">{supportSkill.icon}</span>
                                                                 <div className="flex-1">
                                                                     <div className="text-sm font-medium text-gray-300">{supportSkill.name}</div>
-                                                                    <div className="text-xs text-gray-400 truncate">{supportSkill.description}</div>
+                                                                    <div className="text-xs text-gray-400 break-words whitespace-normal">{supportSkill.description}</div>
                                                                 </div>
                                                             </div>
                                                         ) : (
@@ -337,7 +412,9 @@ export default function SkillConfiguration({ skills, selectedHero, equipment }: 
 
             {isSkillLibraryOpen && (
                 <SkillLibrary
-                    skills={skills}
+                    activeSkills={activeSkills}
+                    passiveSkills={passiveSkills}
+                    supportSkills={supportSkills}
                     selectedSupportSlot={selectedSupportSlot}
                     selectedSkillType={selectedSkillType}
                     onSelectMainSkill={selectMainSkill}
@@ -347,6 +424,13 @@ export default function SkillConfiguration({ skills, selectedHero, equipment }: 
                         setSelectedSupportSlot(null);
                     }}
                     selectedSlotIndex={selectedSlotIndex}
+                    getAvailableSkills={getAvailableSkills}
+                    getAvailableSupportSkills={() => {
+                        if (selectedSupportSlot) {
+                            return getAvailableSupportSkills(selectedSupportSlot.slotType, selectedSupportSlot.slotIndex);
+                        }
+                        return supportSkills;
+                    }}
                 />
             )}
         </div>

@@ -75,7 +75,7 @@ export default function TalentSystem() {
     };
 
     return (
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-orange-500/20 p-4">
+        <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-orange-500/20 p-4 z-40">
             <h2 className="text-xl font-bold text-orange-400 mb-4 flex items-center">
                 <Star className="mr-2" /> 天赋选择
             </h2>

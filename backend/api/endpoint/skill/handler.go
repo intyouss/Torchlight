@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func (a *ActiveSkill) QueryActiveSkillList(c *router.Context) {
+func (a *Skill) QueryActiveSkillList(c *router.Context) {
 	data, err := service.GetActiveSkills(c)
 	if err != nil {
 		c.Error(http.StatusInternalServerError, err.Error())

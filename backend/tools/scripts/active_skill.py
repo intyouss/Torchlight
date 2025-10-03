@@ -1,3 +1,4 @@
+import json
 import re
 import asyncio
 import sys
@@ -79,12 +80,12 @@ async def parse_skill_detail(session: aiohttp.ClientSession, en_name: str, cn_na
 
         # 解析武器限制
         weapon_restriction_div = soup_div.find("div", attrs={"data-block": "weapon_restrict_description"})
-        weapon_restriction = []
+        weapon_restrictions = []
         if weapon_restriction_div:
             weapon_text = weapon_restriction_div.get_text().replace("限定", "")
-            weapon_restriction = weapon_text.split("、") if weapon_text else []
+            weapon_restrictions = weapon_text.split("、") if weapon_text else []
 
-        return {
+        result = {
             "id": en_name,
             "name": cn_name,
             "icon": icon,
@@ -94,8 +95,10 @@ async def parse_skill_detail(session: aiohttp.ClientSession, en_name: str, cn_na
             "type": 'active',
             "tags": tags,
             "description": desc,
-            "weapon_restriction": weapon_restriction
+            "weapon_restrictions": weapon_restrictions
         }
+
+        return result
 
     except Exception as e:
         log_error(f"解析技能 {cn_name} 详情失败: {e}")
@@ -109,7 +112,8 @@ async def get_skill_list(session: aiohttp.ClientSession) -> List[Dict]:
         return []
 
     soup = BeautifulSoup(html, "lxml")
-    skill_divs = soup.find_all("div", attrs={"class": "flex-grow-1 mx-2 my-1"})
+    active_div = soup.find("div", attrs={"id": "主动技能Tag"})
+    skill_divs = active_div.find_all("div", attrs={"class": "flex-grow-1 mx-2 my-1"})
 
     skills_list = []
     for div in skill_divs:
@@ -122,7 +126,6 @@ async def get_skill_list(session: aiohttp.ClientSession) -> List[Dict]:
         except Exception as e:
             log_error(f"解析技能链接失败: {e}")
             continue
-
     return skills_list
 
 
@@ -162,7 +165,7 @@ async def get_active_skills(concurrency: int = 10):
         if failed_count > 0:
             log_debug(f"失败 {failed_count} 个技能")
 
-        return valid_skills
+        return json.dumps(valid_skills, ensure_ascii=False)
 
 if __name__ == "__main__":
     print(asyncio.run(get_active_skills(20)))

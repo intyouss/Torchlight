@@ -19,7 +19,7 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' }:
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-0">
             <div className={`bg-gray-800 rounded-xl border border-orange-500/20 p-6 ${sizeClasses[size]} max-h-[80vh] overflow-y-auto`}>
                 <div className="flex justify-between items-center mb-4">
                     <h3 className="text-xl font-bold text-orange-400">{title}</h3>

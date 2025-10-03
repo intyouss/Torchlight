@@ -10,13 +10,13 @@ export interface Hero {
 export interface Skill {
     id: string;
     name: string;
-    type: 'active' | 'passive' | 'support' | 'trigger';
+    type: 'active' | 'passive' | 'support';
     description: string;
     icon: string;
     tags: string[];
-    manaCost?: number;
-    castingSpeed?: number;
-    cooldown?: number;
+    manaCost?: string;
+    castingSpeed?: string;
+    cooldown?: string;
     weaponRestrictions?: string[];
 }
 
@@ -28,7 +28,6 @@ export interface SkillSlot {
 export interface SkillBuild {
     activeSlots: SkillSlot[];
     passiveSlots: SkillSlot[];
-    triggerSlots: SkillSlot[];
 }
 
 export interface HeroTrait {

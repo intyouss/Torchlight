@@ -16,8 +16,8 @@ type Skill struct {
 	Tags               []string  `json:"tags"`
 	Desc               string    `json:"description"`
 	Icon               string    `json:"icon"`
-	ManaCost           int       `json:"mana_cost,omitempty"`
-	CastingSpeed       int       `json:"casting_speed,omitempty"`
-	Cooldown           int       `json:"cooldown,omitempty"`
+	ManaCost           string    `json:"mana_cost,omitempty"`
+	CastingSpeed       string    `json:"casting_speed,omitempty"`
+	Cooldown           string    `json:"cooldown,omitempty"`
 	WeaponRestrictions []string  `json:"weapon_restrictions,omitempty"`
 }
