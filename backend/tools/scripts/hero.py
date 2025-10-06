@@ -21,6 +21,8 @@ def log_error(message):
 async def process_hero(div, concurrency = 10):
     hero_en_name = div.find('a').get('href')
     hero_cn_name = div.find('a').text
+    f_div = div.find_parent("div")
+    hero_icon = f_div.find("img")["src"] if f_div.find("img").has_attr("src") else ""
     hero_desc = div.find('hr').next_sibling.strip()
 
     trait_html = await fetch(URL + hero_en_name, concurrency)
@@ -34,18 +36,22 @@ async def process_hero(div, concurrency = 10):
         "id": hero_en_name,
         "name": hero_cn_name,
         "desc": hero_desc,
+        "icon": hero_icon,
         "traits": traits,
     }
 
 # 异步单个特性
 async def process_trait(child_div):
     result_div = child_div.find_parent('div')
+    ff_div = result_div.find_parent('div')
+    icon = ff_div.find("img")["src"] if ff_div.find("img").has_attr("src") else ""
     name = child_div.text
     unlock_level = re.search(r'需求等级\s*(\d+)', result_div.text).group(1)
     desc = result_div.find_all('div')[1].get_text()
     return {
         "id": name,
         "name": name,
+        "icon": icon,
         "desc": desc,
         "unlock_level": unlock_level
     }

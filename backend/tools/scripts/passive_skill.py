@@ -2,12 +2,13 @@ import json
 import re
 import asyncio
 import sys
+from yarl import URL
 
 import aiohttp
 from bs4 import BeautifulSoup
 from typing import List, Dict
 
-URL = "https://tlidb.com/cn/"
+MAIN_URL = "https://tlidb.com/cn/"
 
 def log_debug(message):
     """输出调试信息到stderr"""
@@ -20,6 +21,7 @@ def log_error(message):
 async def fetch_html(session: aiohttp.ClientSession, url: str) -> str:
     """异步获取HTML内容"""
     try:
+        url = URL(url, encoded=True)
         async with session.get(url) as response:
             return await response.text()
     except Exception as e:
@@ -31,14 +33,14 @@ async def parse_skill_detail(session: aiohttp.ClientSession, en_name: str, cn_na
     """异步解析单个技能详情"""
     try:
         # 获取技能详情页
-        skill_url = URL + en_name
+        skill_url = MAIN_URL + en_name
         html = await fetch_html(session, skill_url)
+
         if not html:
             return {}
 
         soup = BeautifulSoup(html, "lxml")
         soup_div = soup.find("div", attrs={"class": "card ui_item popupItem"})
-
         if not soup_div:
             return {}
 
@@ -55,7 +57,7 @@ async def parse_skill_detail(session: aiohttp.ClientSession, en_name: str, cn_na
         icon = icon_img["src"] if icon_img.has_attr("src") else ""
 
         # 初始化属性
-        mana_cost, cooldown, casting_speed, damage_match = "", "", "", ""
+        magic_seal, damage_match, casting_speed = "", "", ""
 
         # 解析技能属性
         all_div = soup_div.find_all("div", attrs={"class": "d-flex justify-content-center"})
@@ -69,36 +71,24 @@ async def parse_skill_detail(session: aiohttp.ClientSession, en_name: str, cn_na
             if not next_div:
                 continue
 
-            if text == "魔力消耗":
-                mana_cost = next_div.get_text()
+            if text == "魔力封印":
+                magic_seal = next_div.get_text()
             elif text == "伤害倍率":
                 damage_match = next_div.get_text()
-            elif text == "冷却时间":
-                cooldown_match = re.search(r'\d+\.?\d*', next_div.get_text())
-                cooldown = cooldown_match.group(0) if cooldown_match else ""
             elif text == "施法速度":
                 speed_match = re.search(r'\d+\.?\d*', next_div.get_text())
                 casting_speed = speed_match.group(0) if speed_match else ""
-
-        # 解析武器限制
-        weapon_restriction_div = soup_div.find("div", attrs={"data-block": "weapon_restrict_description"})
-        weapon_restrictions = []
-        if weapon_restriction_div:
-            weapon_text = weapon_restriction_div.get_text().replace("限定", "")
-            weapon_restrictions = weapon_text.split("、") if weapon_text else []
 
         result = {
             "id": en_name,
             "name": cn_name,
             "icon": icon,
-            "mana_cost": mana_cost,
+            "magic_seal": magic_seal,
             "casting_speed": casting_speed,
-            "cooldown": cooldown,
-            "type": 'active',
             "damage_match": damage_match,
+            "type": 'passive',
             "tags": tags,
             "description": desc,
-            "weapon_restrictions": weapon_restrictions
         }
 
         return result
@@ -110,12 +100,12 @@ async def parse_skill_detail(session: aiohttp.ClientSession, en_name: str, cn_na
 
 async def get_skill_list(session: aiohttp.ClientSession) -> List[Dict]:
     """获取技能列表"""
-    html = await fetch_html(session, URL + "Active_Skill")
+    html = await fetch_html(session, MAIN_URL + "Passive_Skill")
     if not html:
         return []
 
     soup = BeautifulSoup(html, "lxml")
-    active_div = soup.find("div", attrs={"id": "主动技能Tag"})
+    active_div = soup.find("div", attrs={"id": "被动技能Tag"})
     skill_divs = active_div.find_all("div", attrs={"class": "flex-grow-1 mx-2 my-1"})
 
     skills_list = []
@@ -141,7 +131,7 @@ async def get_active_skills(concurrency: int = 10):
         # 第一步：获取所有技能名称
         log_debug("正在获取技能列表...")
         skills_list = await get_skill_list(session)
-        log_debug(f"找到 {len(skills_list)} 个主动技能")
+        log_debug(f"找到 {len(skills_list)} 个被动技能")
 
         # 第二步：异步获取所有技能详情
         log_debug("正在异步获取技能详情...")
@@ -169,6 +159,7 @@ async def get_active_skills(concurrency: int = 10):
             log_debug(f"失败 {failed_count} 个技能")
 
         return json.dumps(valid_skills, ensure_ascii=False)
+
 
 if __name__ == "__main__":
     print(asyncio.run(get_active_skills(20)))

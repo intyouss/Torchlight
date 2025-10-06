@@ -151,14 +151,24 @@ export default function SkillLibrary({
                         魔力消耗: {skill.manaCost}
                     </div>
                 )}
+                {skill.magicSeal && (
+                    <div className="text-xs text-blue-400">
+                        魔力封印: {skill.magicSeal}
+                    </div>
+                )}
                 {skill.castingSpeed && (
                     <div className="text-xs text-green-400">
-                        施法速度: {skill.castingSpeed}
+                        施法速度: {skill.castingSpeed}秒
                     </div>
                 )}
                 {skill.cooldown && (
                     <div className="text-xs text-purple-400">
-                        冷却时间: {skill.cooldown}
+                        冷却时间: {skill.cooldown}秒
+                    </div>
+                )}
+                {skill.damageMatch && (
+                    <div className="text-xs text-red-600">
+                        伤害倍率: {skill.damageMatch}
                     </div>
                 )}
                 {renderWeaponRestrictions(skill.weaponRestrictions)}
@@ -195,34 +205,30 @@ export default function SkillLibrary({
                                         <button
                                             key={skill.id}
                                             onClick={() => handleSkillSelect(skill)}
-                                            className="p-4 rounded-lg border-2 border-gray-600 bg-gray-700/50 hover:border-orange-400/50 transition-all text-left group w-full"
+                                            className="p-4 rounded-lg border-2 border-gray-600 bg-gray-700/50 hover:border-orange-400/50 transition-all text-left group w-full flex flex-col h-full"
                                         >
-                                            {/* 技能图标和基本信息 */}
-                                            <div className="flex items-start space-x-3">
-                                                <div className="flex-shrink-0">
+                                            {/* 图标和基本信息 - 上半部分 */}
+                                            <div className="flex flex-col items-center justify-center mb-3 flex-shrink-0">
+                                                <div className="flex items-center justify-center h-16 w-16 mb-2">
                                                     {skill.icon ? (
-                                                        // 如果是 URL，显示图片
                                                         skill.icon.startsWith('http') ? (
                                                             <img
                                                                 src={skill.icon}
                                                                 alt={skill.name}
-                                                                className="w-8 h-8 object-cover rounded"
+                                                                className="w-12 h-12 object-contain"
                                                                 onError={(e) => {
-                                                                    // 图片加载失败时显示备用图标
                                                                     e.currentTarget.style.display = 'none';
                                                                 }}
                                                             />
                                                         ) : (
-                                                            // 如果是 Emoji，显示文本
-                                                            <span className="text-2xl">{skill.icon}</span>
+                                                            <span className="text-4xl">{skill.icon}</span>
                                                         )
                                                     ) : (
-                                                        // 如果没有图标，显示默认图标
-                                                        <span className="text-2xl">❓</span>
+                                                        <span className="text-4xl">❓</span>
                                                     )}
                                                 </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="font-semibold text-orange-300 text-sm group-hover:text-orange-200 truncate">
+                                                <div className="text-center">
+                                                    <div className="font-semibold text-orange-300 text-sm group-hover:text-orange-200">
                                                         {skill.name}
                                                     </div>
                                                     <div className="text-xs text-gray-400 mt-1">
@@ -231,20 +237,29 @@ export default function SkillLibrary({
                                                 </div>
                                             </div>
 
-                                            {/* 技能描述 */}
-                                            <div className="text-xs text-gray-300 mt-2 line-clamp-2">
-                                                {skill.description}
-                                            </div>
+                                            {/* 技能描述、标签、属性 - 下半部分 */}
+                                            <div className="flex-1 flex flex-col">
+                                                {/* 技能描述 */}
+                                                <div className="text-xs text-gray-300 mb-2 flex-shrink-0">
+                                                    {skill.description}
+                                                </div>
 
-                                            {/* 技能标签 */}
-                                            {skill.tags && skill.tags.length > 0 && renderTags(skill.tags)}
+                                                {/* 技能标签 */}
+                                                {skill.tags && skill.tags.length > 0 && (
+                                                    <div className="flex-shrink-0">
+                                                        {renderTags(skill.tags)}
+                                                    </div>
+                                                )}
 
-                                            {/* 技能属性 */}
-                                            {renderSkillProperties(skill)}
+                                                {/* 技能属性 */}
+                                                <div className="mt-auto pt-2">
+                                                    {renderSkillProperties(skill)}
+                                                </div>
 
-                                            {/* 技能ID（调试用） */}
-                                            <div className="text-xs text-gray-500 mt-2">
-                                                ID: {skill.id}
+                                                {/* 技能ID（调试用） */}
+                                                <div className="text-xs text-gray-500 mt-2">
+                                                    ID: {skill.id}
+                                                </div>
                                             </div>
                                         </button>
                                     );

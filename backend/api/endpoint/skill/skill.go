@@ -11,4 +11,5 @@ func (a *Skill) Name() string {
 
 func (a *Skill) Run(r router.Router) {
 	r.GET("active", a.QueryActiveSkillList)
+	r.GET("passive", a.QueryPassiveSkillList)
 }

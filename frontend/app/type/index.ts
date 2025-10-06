@@ -1,10 +1,19 @@
 export interface Hero {
     id: string;
     name: string;
-    icon?: string;
+    icon: string;
     desc: string;
     baseStats?: CharacterStats;
     traits: HeroTrait[];
+}
+
+export interface HeroTrait {
+    id: string;
+    name: string;
+    desc: string;
+    icon: string;
+    unlock_level: number;
+    isDefault?: boolean;
 }
 
 export interface Skill {
@@ -17,6 +26,8 @@ export interface Skill {
     manaCost?: string;
     castingSpeed?: string;
     cooldown?: string;
+    magicSeal?: string;
+    damageMatch?: string;
     weaponRestrictions?: string[];
 }
 
@@ -30,14 +41,7 @@ export interface SkillBuild {
     passiveSlots: SkillSlot[];
 }
 
-export interface HeroTrait {
-    id: string;
-    name: string;
-    desc: string;
-    icon?: string;
-    unlock_level: number;
-    isDefault?: boolean;
-}
+
 
 export interface TraitSelection {
     level: number;

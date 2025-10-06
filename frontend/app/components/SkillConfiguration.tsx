@@ -221,14 +221,6 @@ export default function SkillConfiguration({
                                             )}
                                             <div className="flex-1">
                                                 <div className="font-semibold text-orange-300 text-sm">{slot.mainSkill.name}</div>
-                                                <div className="text-xs text-gray-400 break-words whitespace-normal">{slot.mainSkill.description}</div>
-                                                <div className="flex flex-wrap gap-1 mt-1">
-                                                    {slot.mainSkill.tags.map(tag => (
-                                                        <span key={tag} className="px-1 py-0.5 bg-gray-700 rounded text-xs text-gray-300">
-                        {tag}
-                    </span>
-                                                    ))}
-                                                </div>
                                             </div>
                                         </div>
                                     ) : (
@@ -276,7 +268,6 @@ export default function SkillConfiguration({
                                                             )}
                                                             <div className="flex-1">
                                                                 <div className="text-sm font-medium text-gray-300">{supportSkill.name}</div>
-                                                                <div className="text-xs text-gray-400 truncate">{supportSkill.description}</div>
                                                             </div>
                                                         </div>
                                                     ) : (
@@ -353,7 +344,6 @@ export default function SkillConfiguration({
                                                     }`}>
                                                         {slot.mainSkill.name}
                                                     </div>
-                                                    <div className="text-xs text-gray-400 break-words whitespace-normal">{slot.mainSkill.description}</div>
                                                 </div>
                                             </div>
                                         ) : (
@@ -389,7 +379,6 @@ export default function SkillConfiguration({
                                                                 <span className="text-lg">{supportSkill.icon}</span>
                                                                 <div className="flex-1">
                                                                     <div className="text-sm font-medium text-gray-300">{supportSkill.name}</div>
-                                                                    <div className="text-xs text-gray-400 break-words whitespace-normal">{supportSkill.description}</div>
                                                                 </div>
                                                             </div>
                                                         ) : (

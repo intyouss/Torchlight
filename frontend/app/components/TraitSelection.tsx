@@ -64,7 +64,28 @@ export default function TraitSelection({ hero, traitSelections, onTraitSelection
                                     }`}
                                 >
                                     <div className="flex items-center mb-2">
-                                        <span className="text-xl mr-2">{trait.icon}</span>
+                                        <span className="text-xl mr-2">
+                                            {trait.icon ? (
+                                                // 如果是 URL，显示图片
+                                                trait.icon.startsWith('http') ? (
+                                                    <img
+                                                        src={trait.icon}
+                                                        alt={trait.name}
+                                                        className="w-8 h-8 object-cover rounded"
+                                                        onError={(e) => {
+                                                            // 图片加载失败时显示备用图标
+                                                            e.currentTarget.style.display = 'none';
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    // 如果是 Emoji，显示文本
+                                                    <span className="text-2xl">{trait.icon}</span>
+                                                )
+                                            ) : (
+                                                // 如果没有图标，显示默认图标
+                                                <span className="text-2xl">❓</span>
+                                            )}
+                                        </span>
                                         <div>
                                             <div className="font-semibold text-orange-300">{trait.name}</div>
                                             <div className="text-sm text-gray-400">
@@ -88,7 +109,28 @@ export default function TraitSelection({ hero, traitSelections, onTraitSelection
                             const trait = hero.traits.find(t => t.id === traitId);
                             return trait ? (
                                 <div key={trait.id} className="flex items-center text-sm">
-                                    <span className="text-orange-400 mr-2">{trait.icon}</span>
+                                    <span className="text-orange-400 mr-2">
+                                        {trait.icon ? (
+                                            // 如果是 URL，显示图片
+                                            trait.icon.startsWith('http') ? (
+                                                <img
+                                                    src={trait.icon}
+                                                    alt={trait.name}
+                                                    className="w-8 h-8 object-cover rounded"
+                                                    onError={(e) => {
+                                                        // 图片加载失败时显示备用图标
+                                                        e.currentTarget.style.display = 'none';
+                                                    }}
+                                                />
+                                            ) : (
+                                                // 如果是 Emoji，显示文本
+                                                <span className="text-2xl">{trait.icon}</span>
+                                            )
+                                        ) : (
+                                            // 如果没有图标，显示默认图标
+                                            <span className="text-2xl">❓</span>
+                                        )}
+                                    </span>
                                     <span className="text-gray-300">
                                         Lv.{trait.unlock_level} {trait.name}
                                     </span>

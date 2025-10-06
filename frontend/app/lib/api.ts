@@ -34,6 +34,7 @@ function transformTraits(traits: any[]): HeroTrait[] {
     return traits.map(trait => ({
         id: trait.id || trait.name || '',
         name: trait.name || '',
+        icon: trait.icon || '',
         desc: trait.desc || trait.description || '',
         unlock_level: parseInt(trait.unlock_level),
         isDefault: parseInt(trait.unlock_level) === 1
@@ -44,6 +45,7 @@ function transformHeroData(heroData: any): Hero {
     return {
         id: heroData.id || '',
         name: heroData.name || '',
+        icon: heroData.icon || '',
         desc: heroData.desc || '',
         traits: transformTraits(heroData.traits || [])
     };
@@ -60,6 +62,8 @@ function transformSkillData(skillData: any): Skill {
         manaCost: skillData.mana_cost || "",
         castingSpeed: skillData.casting_speed || "",
         cooldown: skillData.cooldown || "",
+        magicSeal: skillData.magic_seal || "",
+        damageMatch: skillData.damage_match || "",
         weaponRestrictions: skillData.weapon_restrictions || []
     };
 }
