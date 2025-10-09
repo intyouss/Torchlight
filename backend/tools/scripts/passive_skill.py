@@ -57,7 +57,7 @@ async def parse_skill_detail(session: aiohttp.ClientSession, en_name: str, cn_na
         icon = icon_img["src"] if icon_img.has_attr("src") else ""
 
         # 初始化属性
-        magic_seal, damage_match, casting_speed = "", "", ""
+        main_attribute, magic_seal, damage_match, casting_speed = "", "", "", ""
 
         # 解析技能属性
         all_div = soup_div.find_all("div", attrs={"class": "d-flex justify-content-center"})
@@ -73,6 +73,8 @@ async def parse_skill_detail(session: aiohttp.ClientSession, en_name: str, cn_na
 
             if text == "魔力封印":
                 magic_seal = next_div.get_text()
+            elif text == "主属性：":
+                main_attribute = next_div.get_text()
             elif text == "伤害倍率":
                 damage_match = next_div.get_text()
             elif text == "施法速度":
@@ -83,6 +85,7 @@ async def parse_skill_detail(session: aiohttp.ClientSession, en_name: str, cn_na
             "id": en_name,
             "name": cn_name,
             "icon": icon,
+            "main_attribute": main_attribute,
             "magic_seal": magic_seal,
             "casting_speed": casting_speed,
             "damage_match": damage_match,

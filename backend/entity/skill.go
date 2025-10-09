@@ -15,6 +15,7 @@ type ActiveSkill struct {
 	Tags               []string  `json:"tags"`
 	Desc               string    `json:"description"`
 	Icon               string    `json:"icon"`
+	MainAttribute      string    `json:"main_attribute,omitempty"`
 	ManaCost           string    `json:"mana_cost,omitempty"`
 	CastingSpeed       string    `json:"casting_speed,omitempty"`
 	DamageMatch        string    `json:"damage_match,omitempty"`
@@ -23,15 +24,16 @@ type ActiveSkill struct {
 }
 
 type PassiveSkill struct {
-	ID           string    `json:"id"`
-	Name         string    `json:"name"`
-	Type         SkillType `json:"type"`
-	Tags         []string  `json:"tags"`
-	Desc         string    `json:"description"`
-	Icon         string    `json:"icon"`
-	MagicSeal    string    `json:"magic_seal,omitempty"`
-	CastingSpeed string    `json:"casting_speed,omitempty"`
-	DamageMatch  string    `json:"damage_match,omitempty"`
+	ID            string    `json:"id"`
+	Name          string    `json:"name"`
+	Type          SkillType `json:"type"`
+	Tags          []string  `json:"tags"`
+	Desc          string    `json:"description"`
+	Icon          string    `json:"icon"`
+	MainAttribute string    `json:"main_attribute,omitempty"`
+	MagicSeal     string    `json:"magic_seal,omitempty"`
+	CastingSpeed  string    `json:"casting_speed,omitempty"`
+	DamageMatch   string    `json:"damage_match,omitempty"`
 }
 
 type SupportSkill struct {

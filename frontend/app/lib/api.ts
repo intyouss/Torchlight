@@ -60,6 +60,7 @@ function transformSkillData(skillData: any): Skill {
         icon: skillData.icon || '❓',
         tags: skillData.tags || [],
         manaCost: skillData.mana_cost || "",
+        mainAttribute: skillData.main_attribute || "",
         manaCostMatch: skillData.mana_cost_match || "",
         castingSpeed: skillData.casting_speed || "",
         cooldown: skillData.cooldown || "",

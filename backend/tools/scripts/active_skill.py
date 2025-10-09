@@ -55,7 +55,7 @@ async def parse_skill_detail(session: aiohttp.ClientSession, en_name: str, cn_na
         icon = icon_img["src"] if icon_img.has_attr("src") else ""
 
         # 初始化属性
-        mana_cost, cooldown, casting_speed, damage_match = "", "", "", ""
+        main_attribute, mana_cost, cooldown, casting_speed, damage_match = "", "", "", "", ""
 
         # 解析技能属性
         all_div = soup_div.find_all("div", attrs={"class": "d-flex justify-content-center"})
@@ -71,6 +71,8 @@ async def parse_skill_detail(session: aiohttp.ClientSession, en_name: str, cn_na
 
             if text == "魔力消耗":
                 mana_cost = next_div.get_text()
+            elif text == "主属性：":
+                main_attribute = next_div.get_text()
             elif text == "伤害倍率":
                 damage_match = next_div.get_text()
             elif text == "冷却时间":
@@ -91,6 +93,7 @@ async def parse_skill_detail(session: aiohttp.ClientSession, en_name: str, cn_na
             "id": en_name,
             "name": cn_name,
             "icon": icon,
+            "main_attribute": main_attribute,
             "mana_cost": mana_cost,
             "casting_speed": casting_speed,
             "cooldown": cooldown,

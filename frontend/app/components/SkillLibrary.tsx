@@ -146,6 +146,11 @@ export default function SkillLibrary({
     const renderSkillProperties = (skill: Skill) => {
         return (
             <div className="space-y-1 mt-2">
+                {skill.mainAttribute && (
+                    <div className="text-xs text-purple-600">
+                        主属性: {skill.mainAttribute}
+                    </div>
+                )}
                 {skill.manaCost && (
                     <div className="text-xs text-blue-300">
                         魔力消耗: {skill.manaCost}

@@ -23,6 +23,7 @@ export interface Skill {
     description: string;
     icon: string;
     tags: string[];
+    mainAttribute?: string;
     manaCost?: string;
     manaCostMatch?: string;
     castingSpeed?: string;
