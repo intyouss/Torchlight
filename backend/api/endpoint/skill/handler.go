@@ -23,3 +23,12 @@ func (a *Skill) QueryPassiveSkillList(c *router.Context) {
 	}
 	c.Success(data)
 }
+
+func (a *Skill) QuerySupportSkillList(c *router.Context) {
+	data, err := service.GetSupportSkills(c)
+	if err != nil {
+		c.Error(http.StatusInternalServerError, err.Error())
+		return
+	}
+	c.Success(data)
+}

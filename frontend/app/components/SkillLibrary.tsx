@@ -147,7 +147,7 @@ export default function SkillLibrary({
         return (
             <div className="space-y-1 mt-2">
                 {skill.manaCost && (
-                    <div className="text-xs text-blue-400">
+                    <div className="text-xs text-blue-300">
                         魔力消耗: {skill.manaCost}
                     </div>
                 )}
@@ -169,6 +169,11 @@ export default function SkillLibrary({
                 {skill.damageMatch && (
                     <div className="text-xs text-red-600">
                         伤害倍率: {skill.damageMatch}
+                    </div>
+                )}
+                {skill.manaCostMatch && (
+                    <div className="text-xs text-blue-500">
+                        魔力消耗倍率: {skill.manaCostMatch}
                     </div>
                 )}
                 {renderWeaponRestrictions(skill.weaponRestrictions)}

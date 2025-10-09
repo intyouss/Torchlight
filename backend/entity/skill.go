@@ -6,7 +6,6 @@ const (
 	Active  SkillType = "active"
 	Passive SkillType = "passive"
 	Support SkillType = "support"
-	Trigger SkillType = "trigger"
 )
 
 type ActiveSkill struct {
@@ -33,4 +32,14 @@ type PassiveSkill struct {
 	MagicSeal    string    `json:"magic_seal,omitempty"`
 	CastingSpeed string    `json:"casting_speed,omitempty"`
 	DamageMatch  string    `json:"damage_match,omitempty"`
+}
+
+type SupportSkill struct {
+	ID            string    `json:"id"`
+	Name          string    `json:"name"`
+	Type          SkillType `json:"type"`
+	Tags          []string  `json:"tags"`
+	Desc          string    `json:"description"`
+	Icon          string    `json:"icon"`
+	ManaCostMatch string    `json:"mana_cost_match,omitempty"`
 }

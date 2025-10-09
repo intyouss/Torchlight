@@ -24,6 +24,7 @@ export interface Skill {
     icon: string;
     tags: string[];
     manaCost?: string;
+    manaCostMatch?: string;
     castingSpeed?: string;
     cooldown?: string;
     magicSeal?: string;
