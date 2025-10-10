@@ -25,21 +25,27 @@ export const useData = (): UseDataReturn => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const fetchData = async () => {
+    const fetchData = async (forceRefresh: boolean = false) => {
         try {
             setLoading(true);
             setError(null);
 
-            // 并行获取所有数据
-            const [heroesData, activeSkillsData, passiveSkillsData, supportSkillsData, statsData, equipmentData] = await Promise.all([
-                apiService.getHeroes(),
-                apiService.getActiveSkills(),
-                apiService.getPassiveSkills(),
-                apiService.getSupportSkills(),
+            // 并行请求，但使用带缓存的API方法
+            const [
+                heroesData,
+                activeSkillsData,
+                passiveSkillsData,
+                supportSkillsData,
+                statsData,
+                equipmentData
+            ] = await Promise.all([
+                apiService.getHeroes(forceRefresh),
+                apiService.getActiveSkills(forceRefresh),
+                apiService.getPassiveSkills(forceRefresh),
+                apiService.getSupportSkills(forceRefresh),
                 apiService.getDefaultStats(),
                 apiService.getDefaultEquipment()
             ]);
-
             setHeroes(heroesData);
             setActiveSkills(activeSkillsData);
             setPassiveSkills(passiveSkillsData);
@@ -56,11 +62,12 @@ export const useData = (): UseDataReturn => {
     };
 
     useEffect(() => {
-        fetchData().then(r => '');
+        fetchData();
     }, []);
 
+    // 修改refresh方法，支持强制刷新
     const refresh = async () => {
-        await fetchData();
+        await fetchData(true);
     };
 
     return {

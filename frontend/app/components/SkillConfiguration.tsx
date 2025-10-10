@@ -376,7 +376,19 @@ export default function SkillConfiguration({
                                                     >
                                                         {supportSkill ? (
                                                             <div className="flex items-center space-x-2">
-                                                                <span className="text-lg">{supportSkill.icon}</span>
+                                                                {supportSkill.icon ? (
+                                                                    supportSkill.icon.startsWith('http') ? (
+                                                                        <img
+                                                                            src={supportSkill.icon}
+                                                                            alt={supportSkill.name}
+                                                                            className="w-5 h-5 object-cover rounded"
+                                                                        />
+                                                                    ) : (
+                                                                        <span className="text-lg">{supportSkill.icon}</span>
+                                                                    )
+                                                                ) : (
+                                                                    <span className="text-lg">❓</span>
+                                                                )}
                                                                 <div className="flex-1">
                                                                     <div className="text-sm font-medium text-gray-300">{supportSkill.name}</div>
                                                                 </div>

@@ -1,6 +1,18 @@
 // api.ts - 修改API服务，分别获取不同类型的技能
 import {CharacterStats, DamageResult, EquipmentStats, Hero, HeroTrait, Skill, TalentBook} from '../type';
+// 新增: 导入缓存工具
+import { ApiCache } from './cache';
 
+// 修改: 为每个API请求添加缓存键
+const API_CACHE_KEYS = {
+    heroes: 'heroes',
+    activeSkills: 'active_skills',
+    passiveSkills: 'passive_skills',
+    supportSkills: 'support_skills',
+    defaultStats: 'default_stats',
+    defaultEquipment: 'default_equipment',
+    talentBooks: 'talent_books'
+};
 // API基础配置
 const API_BASE_URL = 'http://localhost:8080/api/v1';
 
@@ -185,46 +197,74 @@ const calculateDamageFrontend = (params: {
     };
 };
 
+// 修改: 更新API服务方法，添加缓存逻辑
 export const apiService = {
-    // 获取英雄列表
-    async getHeroes(): Promise<Hero[]> {
+    // 获取英雄列表 - 带缓存
+    async getHeroes(forceRefresh: boolean = false): Promise<Hero[]> {
+        // 检查缓存
+        if (!forceRefresh) {
+            const cached = ApiCache.get<Hero[]>(API_CACHE_KEYS.heroes);
+            if (cached) return cached;
+        }
+
         try {
             const rawHeroes = await apiClient.get<Hero[]>('/hero');
-            return rawHeroes.map(heroData => transformHeroData(heroData));
+            const transformed = rawHeroes.map(heroData => transformHeroData(heroData));
+            ApiCache.set(API_CACHE_KEYS.heroes, transformed); // 存入缓存
+            return transformed;
         } catch (error) {
-            console.error('获取英雄列表失败，使用默认数据:', error);
-            return getDefaultHeroes();
+            console.error('获取英雄列表失败:', error);
+            return [];
         }
     },
 
-    // api.ts - 在 API 方法中添加调试
-    async getActiveSkills(): Promise<Skill[]> {
+    // 获取主动技能 - 带缓存
+    async getActiveSkills(forceRefresh: boolean = false): Promise<Skill[]> {
+        if (!forceRefresh) {
+            const cached = ApiCache.get<Skill[]>(API_CACHE_KEYS.activeSkills);
+            if (cached) return cached;
+        }
+
         try {
             const rawSkills = await apiClient.get<any[]>('/skill/active');
-            return rawSkills.map(skillData => transformSkillData(skillData));
+            const transformed = rawSkills.map(skillData => transformSkillData(skillData));
+            ApiCache.set(API_CACHE_KEYS.activeSkills, transformed);
+            return transformed;
         } catch (error) {
-            console.error('获取主动技能列表失败，使用默认数据:', error);
-            return getDefaultActiveSkills();
+            console.error('获取主动技能列表失败:', error);
+            return [];
         }
     },
+    async getPassiveSkills(forceRefresh: boolean = false): Promise<Skill[]> {
+        if (!forceRefresh) {
+            const cached = ApiCache.get<Skill[]>(API_CACHE_KEYS.passiveSkills);
+            if (cached) return cached;
+        }
 
-    async getPassiveSkills(): Promise<Skill[]> {
         try {
             const rawSkills = await apiClient.get<any[]>('/skill/passive');
-            return rawSkills.map(skillData => transformSkillData(skillData));
+            const transformed = rawSkills.map(skillData => transformSkillData(skillData));
+            ApiCache.set(API_CACHE_KEYS.passiveSkills, transformed);
+            return transformed;
         } catch (error) {
             console.error('获取被动技能列表失败，使用默认数据:', error);
-            return getDefaultPassiveSkills();
+            return [];
         }
     },
+    async getSupportSkills(forceRefresh: boolean = false): Promise<Skill[]> {
+        if (!forceRefresh) {
+            const cached = ApiCache.get<Skill[]>(API_CACHE_KEYS.supportSkills);
+            if (cached) return cached;
+        }
 
-    async getSupportSkills(): Promise<Skill[]> {
         try {
             const rawSkills = await apiClient.get<any[]>('/skill/support');
-            return rawSkills.map(skillData => transformSkillData(skillData));
+            const transformed = rawSkills.map(skillData => transformSkillData(skillData));
+            ApiCache.set(API_CACHE_KEYS.supportSkills, transformed);
+            return transformed;
         } catch (error) {
             console.error('获取辅助技能列表失败，使用默认数据:', error);
-            return getDefaultSupportSkills();
+            return [];
         }
     },
 
@@ -252,6 +292,10 @@ export const apiService = {
             },
             weaponType: 'sword',
         };
+    },
+    // 添加缓存清理方法
+    clearCache(): void {
+        ApiCache.clear();
     },
 
 
@@ -322,71 +366,6 @@ export const apiService = {
         }
     }
 };
-
-// 默认数据函数 - 分别定义不同类型的技能
-const getDefaultActiveSkills = (): Skill[] => [
-    {
-        id: 'whirlwind',
-        name: '旋风斩',
-        type: 'active',
-        description: '快速旋转攻击周围敌人，造成物理伤害',
-        icon: '🌪️',
-        tags: ['attack', 'physical', 'area'],
-        manaCost: "15",
-        cooldown: "2"
-    },
-    {
-        id: 'fireball',
-        name: '火球术',
-        type: 'active',
-        description: '发射火球攻击敌人，造成火焰伤害并附加灼烧',
-        icon: '🔥',
-        tags: ['spell', 'fire', 'projectile'],
-        manaCost: "25",
-        cooldown: "3"
-    },
-    // ... 其他主动技能
-];
-
-const getDefaultPassiveSkills = (): Skill[] => [
-    {
-        id: 'iron_skin',
-        name: '铁皮肤',
-        type: 'passive',
-        description: '提升物理防御和元素抗性',
-        icon: '🛡️',
-        tags: ['defense', 'survival'],
-    },
-    {
-        id: 'critical_strike',
-        name: '致命一击',
-        type: 'passive',
-        description: '提升暴击几率和暴击伤害',
-        icon: '🎯',
-        tags: ['offense', 'critical'],
-    },
-    // ... 其他被动技能
-];
-
-const getDefaultSupportSkills = (): Skill[] => [
-    {
-        id: 'empower',
-        name: '强化',
-        type: 'support',
-        description: '增强主动技能的伤害',
-        icon: '⚡',
-        tags: ['enhance', 'damage'],
-    },
-    {
-        id: 'multiple_projectiles',
-        name: '多重投射物',
-        type: 'support',
-        description: '使投射物技能发射多个投射物',
-        icon: '🎯',
-        tags: ['projectile', 'multiple'],
-    },
-    // ... 其他辅助技能
-];
 
 const getDefaultHeroes = (): Hero[] => [
     {
