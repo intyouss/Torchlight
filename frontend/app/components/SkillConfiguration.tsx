@@ -7,6 +7,7 @@ interface SkillConfigurationProps {
     activeSkills: Skill[];
     passiveSkills: Skill[];
     supportSkills: Skill[];
+    activationMediumSkills: Skill[]; // 新增
     selectedHero: string;
     equipment: EquipmentStats | null;
 }
@@ -15,6 +16,7 @@ export default function SkillConfiguration({
                                                activeSkills,
                                                passiveSkills,
                                                supportSkills,
+                                               activationMediumSkills, // 新增
                                                selectedHero,
                                                equipment
                                            }: SkillConfigurationProps) {
@@ -416,6 +418,7 @@ export default function SkillConfiguration({
                     activeSkills={activeSkills}
                     passiveSkills={passiveSkills}
                     supportSkills={supportSkills}
+                    activationMediumSkills={activationMediumSkills} // 新增
                     selectedSupportSlot={selectedSupportSlot}
                     selectedSkillType={selectedSkillType}
                     onSelectMainSkill={selectMainSkill}

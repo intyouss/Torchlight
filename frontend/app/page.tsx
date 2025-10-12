@@ -19,6 +19,7 @@ export default function TorchlightCalculator() {
         activeSkills,
         passiveSkills,
         supportSkills,
+        activationMediumSkills, // 新增
         defaultStats,
         defaultEquipment,
         loading,
@@ -213,6 +214,7 @@ export default function TorchlightCalculator() {
                     activeSkills={activeSkills}
                     passiveSkills={passiveSkills}
                     supportSkills={supportSkills}
+                    activationMediumSkills={activationMediumSkills} // 新增
                     selectedHero={selectedHero}
                     equipment={equipment}
                 />

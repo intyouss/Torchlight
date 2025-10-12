@@ -6,6 +6,7 @@ interface SkillLibraryProps {
     activeSkills: Skill[];
     passiveSkills: Skill[];
     supportSkills: Skill[];
+    activationMediumSkills: Skill[]; // 新增
     selectedSupportSlot: {
         slotType: 'active' | 'passive';
         slotIndex: number;
@@ -24,6 +25,7 @@ export default function SkillLibrary({
                                          activeSkills,
                                          passiveSkills,
                                          supportSkills,
+                                         activationMediumSkills, // 新增
                                          selectedSupportSlot,
                                          selectedSkillType,
                                          selectedSlotIndex,
@@ -34,6 +36,7 @@ export default function SkillLibrary({
                                          getAvailableSupportSkills
                                      }: SkillLibraryProps) {
     const [mounted, setMounted] = useState(false);
+    const [selectedSkillTab, setSelectedSkillTab] = useState<'support' | 'activation_medium'>('support'); // 新增状态
 
     useEffect(() => {
         setMounted(true);
@@ -55,11 +58,15 @@ export default function SkillLibrary({
     // 根据选择类型获取对应的技能列表
     const getFilteredSkills = () => {
         if (selectedSupportSlot) {
-            // 选择辅助技能时，使用 supportSkills 或通过过滤函数
-            if (getAvailableSupportSkills) {
-                return getAvailableSupportSkills();
+            // 选择辅助技能时，根据选中的标签返回对应的技能列表
+            if (selectedSkillTab === 'support') {
+                if (getAvailableSupportSkills) {
+                    return getAvailableSupportSkills();
+                }
+                return supportSkills;
+            } else if (selectedSkillTab === 'activation_medium') {
+                return activationMediumSkills;
             }
-            return supportSkills;
         } else {
             // 选择主技能时，根据技能类型过滤
             if (getAvailableSkills && selectedSlotIndex !== null) {
@@ -76,6 +83,7 @@ export default function SkillLibrary({
                     return [];
             }
         }
+        return [];
     };
 
     const filteredSkills = getFilteredSkills();
@@ -95,6 +103,13 @@ export default function SkillLibrary({
 
     const getLibraryTitle = () => {
         if (selectedSupportSlot) {
+            // 检查是否是主动技能的第一个辅助技能槽
+            const isFirstSupportSlot = selectedSupportSlot.supportIndex === 0;
+            const isActiveSkill = selectedSupportSlot.slotType === 'active';
+
+            if (isActiveSkill && isFirstSupportSlot) {
+                return selectedSkillTab === 'support' ? '选择辅助技能' : '选择触媒技能';
+            }
             return '选择辅助技能';
         } else {
             return selectedSkillType === 'active' ? '选择主动技能' : '选择被动技能';
@@ -109,6 +124,8 @@ export default function SkillLibrary({
                 return '被动';
             case 'support':
                 return '辅助';
+            case 'activation_medium':
+                return '触媒'; // 新增
             default:
                 return '未知';
         }
@@ -202,6 +219,35 @@ export default function SkillLibrary({
                         ✕
                     </button>
                 </div>
+                {/* 新增：技能类型标签 - 只在选择主动技能的第一个辅助技能时显示 */}
+                {selectedSupportSlot &&
+                    selectedSupportSlot.slotType === 'active' &&
+                    selectedSupportSlot.supportIndex === 0 && (
+                        <div className="flex space-x-2 p-4 border-b border-orange-500/20">
+                            <button
+                                onClick={() => setSelectedSkillTab('support')}
+                                className={`px-4 py-2 rounded-lg transition-colors ${
+                                    selectedSkillTab === 'support'
+                                        ? 'bg-orange-500 text-white'
+                                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                }`}
+                            >
+                                辅助技能
+                            </button>
+                            <button
+                                onClick={() => setSelectedSkillTab('activation_medium')}
+                                className={`px-4 py-2 rounded-lg transition-colors ${
+                                    selectedSkillTab === 'activation_medium'
+                                        ? 'bg-orange-500 text-white'
+                                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                }`}
+                            >
+                                触媒技能
+                            </button>
+                        </div>
+                    )
+                }
+
                 <div className="flex-1 overflow-y-auto p-6 skill-library-scrollbar min-h-0">
                     {filteredSkills.length === 0 ? (
                         <div className="text-center py-8 text-gray-400">

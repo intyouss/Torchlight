@@ -19,7 +19,7 @@ export interface HeroTrait {
 export interface Skill {
     id: string;
     name: string;
-    type: 'active' | 'passive' | 'support';
+    type: 'active' | 'passive' | 'support' | 'activation_medium';
     description: string;
     icon: string;
     tags: string[];

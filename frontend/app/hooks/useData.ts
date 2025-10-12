@@ -8,6 +8,7 @@ interface UseDataReturn {
     activeSkills: Skill[];
     passiveSkills: Skill[];
     supportSkills: Skill[];
+    activationMediumSkills: Skill[]; // 新增触媒技能
     defaultStats: CharacterStats | null;
     defaultEquipment: EquipmentStats | null;
     loading: boolean;
@@ -20,6 +21,7 @@ export const useData = (): UseDataReturn => {
     const [activeSkills, setActiveSkills] = useState<Skill[]>([]);
     const [passiveSkills, setPassiveSkills] = useState<Skill[]>([]);
     const [supportSkills, setSupportSkills] = useState<Skill[]>([]);
+    const [activationMediumSkills, setActivationMediumSkills] = useState<Skill[]>([]); // 新增
     const [defaultStats, setDefaultStats] = useState<CharacterStats | null>(null);
     const [defaultEquipment, setDefaultEquipment] = useState<EquipmentStats | null>(null);
     const [loading, setLoading] = useState(true);
@@ -36,6 +38,7 @@ export const useData = (): UseDataReturn => {
                 activeSkillsData,
                 passiveSkillsData,
                 supportSkillsData,
+                activationMediumSkillsData, // 新增
                 statsData,
                 equipmentData
             ] = await Promise.all([
@@ -43,6 +46,7 @@ export const useData = (): UseDataReturn => {
                 apiService.getActiveSkills(forceRefresh),
                 apiService.getPassiveSkills(forceRefresh),
                 apiService.getSupportSkills(forceRefresh),
+                apiService.getActivationMediumSkills(forceRefresh), // 新增
                 apiService.getDefaultStats(),
                 apiService.getDefaultEquipment()
             ]);
@@ -50,6 +54,7 @@ export const useData = (): UseDataReturn => {
             setActiveSkills(activeSkillsData);
             setPassiveSkills(passiveSkillsData);
             setSupportSkills(supportSkillsData);
+            setActivationMediumSkills(activationMediumSkillsData); // 新增
             setDefaultStats(statsData);
             setDefaultEquipment(equipmentData);
         } catch (err) {
@@ -75,6 +80,7 @@ export const useData = (): UseDataReturn => {
         activeSkills,
         passiveSkills,
         supportSkills,
+        activationMediumSkills, // 新增
         defaultStats,
         defaultEquipment,
         loading,

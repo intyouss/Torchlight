@@ -1,47 +1,49 @@
 package entity
 
-type SkillType string
-
-const (
-	Active  SkillType = "active"
-	Passive SkillType = "passive"
-	Support SkillType = "support"
-)
-
 type ActiveSkill struct {
-	ID                 string    `json:"id"`
-	Name               string    `json:"name"`
-	Type               SkillType `json:"type"`
-	Tags               []string  `json:"tags"`
-	Desc               string    `json:"description"`
-	Icon               string    `json:"icon"`
-	MainAttribute      string    `json:"main_attribute,omitempty"`
-	ManaCost           string    `json:"mana_cost,omitempty"`
-	CastingSpeed       string    `json:"casting_speed,omitempty"`
-	DamageMatch        string    `json:"damage_match,omitempty"`
-	Cooldown           string    `json:"cooldown,omitempty"`
-	WeaponRestrictions []string  `json:"weapon_restrictions,omitempty"`
+	ID                 string   `json:"id"`
+	Name               string   `json:"name"`
+	Type               string   `json:"type" default:"active"`
+	Tags               []string `json:"tags"`
+	Desc               string   `json:"description"`
+	Icon               string   `json:"icon"`
+	MainAttribute      string   `json:"main_attribute,omitempty"`
+	ManaCost           string   `json:"mana_cost,omitempty"`
+	CastingSpeed       string   `json:"casting_speed,omitempty"`
+	DamageMatch        string   `json:"damage_match,omitempty"`
+	Cooldown           string   `json:"cooldown,omitempty"`
+	WeaponRestrictions []string `json:"weapon_restrictions,omitempty"`
 }
 
 type PassiveSkill struct {
-	ID            string    `json:"id"`
-	Name          string    `json:"name"`
-	Type          SkillType `json:"type"`
-	Tags          []string  `json:"tags"`
-	Desc          string    `json:"description"`
-	Icon          string    `json:"icon"`
-	MainAttribute string    `json:"main_attribute,omitempty"`
-	MagicSeal     string    `json:"magic_seal,omitempty"`
-	CastingSpeed  string    `json:"casting_speed,omitempty"`
-	DamageMatch   string    `json:"damage_match,omitempty"`
+	ID            string   `json:"id"`
+	Name          string   `json:"name"`
+	Type          string   `json:"type" default:"passive"`
+	Tags          []string `json:"tags"`
+	Desc          string   `json:"description"`
+	Icon          string   `json:"icon"`
+	MainAttribute string   `json:"main_attribute,omitempty"`
+	MagicSeal     string   `json:"magic_seal,omitempty"`
+	CastingSpeed  string   `json:"casting_speed,omitempty"`
+	DamageMatch   string   `json:"damage_match,omitempty"`
 }
 
 type SupportSkill struct {
-	ID            string    `json:"id"`
-	Name          string    `json:"name"`
-	Type          SkillType `json:"type"`
-	Tags          []string  `json:"tags"`
-	Desc          string    `json:"description"`
-	Icon          string    `json:"icon"`
-	ManaCostMatch string    `json:"mana_cost_match,omitempty"`
+	ID            string   `json:"id"`
+	Name          string   `json:"name"`
+	Type          string   `json:"type" default:"support"`
+	Tags          []string `json:"tags"`
+	Desc          string   `json:"description"`
+	Icon          string   `json:"icon"`
+	ManaCostMatch string   `json:"mana_cost_match,omitempty"`
+}
+
+type ActivationMediumSkill struct {
+	ID            string   `json:"id"`
+	Name          string   `json:"name"`
+	Type          string   `json:"type" default:"activation_medium"`
+	Tags          []string `json:"tags"`
+	Desc          string   `json:"description"`
+	Icon          string   `json:"icon"`
+	ManaCostMatch string   `json:"mana_cost_match,omitempty"`
 }

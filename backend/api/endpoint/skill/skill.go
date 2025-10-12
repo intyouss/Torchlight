@@ -12,5 +12,11 @@ func (a *Skill) Name() string {
 func (a *Skill) Run(r router.Router) {
 	r.GET("active", a.QueryActiveSkillList)
 	r.GET("passive", a.QueryPassiveSkillList)
-	r.GET("support", a.QuerySupportSkillList)
+
+	r = r.Group("support")
+	{
+		r.GET("", a.QuerySupportSkillList)
+		r.GET("activation_medium", a.QueryActivationMediumSkillList)
+	}
+
 }

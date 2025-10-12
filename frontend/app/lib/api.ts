@@ -9,6 +9,7 @@ const API_CACHE_KEYS = {
     activeSkills: 'active_skills',
     passiveSkills: 'passive_skills',
     supportSkills: 'support_skills',
+    activationMediumSkills: 'activation_medium_skills', // 新增
     defaultStats: 'default_stats',
     defaultEquipment: 'default_equipment',
     talentBooks: 'talent_books'
@@ -247,7 +248,7 @@ export const apiService = {
             ApiCache.set(API_CACHE_KEYS.passiveSkills, transformed);
             return transformed;
         } catch (error) {
-            console.error('获取被动技能列表失败，使用默认数据:', error);
+            console.error('获取被动技能列表失败:', error);
             return [];
         }
     },
@@ -263,11 +264,27 @@ export const apiService = {
             ApiCache.set(API_CACHE_KEYS.supportSkills, transformed);
             return transformed;
         } catch (error) {
-            console.error('获取辅助技能列表失败，使用默认数据:', error);
+            console.error('获取辅助技能列表失败:', error);
             return [];
         }
     },
+    // 新增：获取触媒技能
+    async getActivationMediumSkills(forceRefresh: boolean = false): Promise<Skill[]> {
+        if (!forceRefresh) {
+            const cached = ApiCache.get<Skill[]>(API_CACHE_KEYS.activationMediumSkills);
+            if (cached) return cached;
+        }
 
+        try {
+            const rawSkills = await apiClient.get<any[]>('/skill/support/activation_medium');
+            const transformed = rawSkills.map(skillData => transformSkillData(skillData));
+            ApiCache.set(API_CACHE_KEYS.activationMediumSkills, transformed);
+            return transformed;
+        } catch (error) {
+            console.error('获取触媒技能列表失败:', error);
+            return [];
+        }
+    },
     // 获取默认属性
     async getDefaultStats(): Promise<CharacterStats> {
         return {
